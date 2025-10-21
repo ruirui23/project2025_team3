@@ -1,0 +1,135 @@
+.resource-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  color: #333;
+  text-align: center;
+}
+
+.resource-container h2 {
+  margin: 0 0 2rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.resource-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.resource-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 1.5rem;
+  border: 3px solid;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 200px;
+  max-width: 250px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.resource-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.resource-label {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.resource-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  color: #333;
+}
+
+.resource-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.resource-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  min-height: 40px;
+}
+
+.resource-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.resource-btn:active {
+  transform: translateY(0);
+}
+
+.increment-btn {
+  opacity: 0.9;
+}
+
+.increment-btn:hover {
+  opacity: 1;
+}
+
+.decrement-btn {
+  opacity: 0.8;
+}
+
+.decrement-btn:hover {
+  opacity: 1;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+  .resource-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .resource-card {
+    min-width: 180px;
+    max-width: 300px;
+    width: 100%;
+  }
+  
+  .resource-value {
+    font-size: 2rem;
+  }
+  
+  .resource-btn {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .resource-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  
+  .resource-buttons {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
