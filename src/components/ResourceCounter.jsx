@@ -19,13 +19,13 @@ function ResourceCounter() {
   const statConfigs = [
     { key: 'health', label: '体力', color: '#4CAF50', initialValue: 100 },
     { key: 'stress', label: 'ストレス', color: '#f44336', initialValue: 0 },
-    { key: 'energy', label: 'エネルギー（ご飯）', color: '#FF9800', initialValue: 50 },
+    { key: 'energy', label: '空腹度', color: '#FF9800', initialValue: 50 },
     { key: 'money', label: 'お金', color: '#2196F3', initialValue: 1000 }
   ];
 
   return (
     <div className="resource-container">
-      <h2>リソース管理</h2>
+      <h2>ステータス</h2>
       <div className="resource-grid">
         {statConfigs.map(({ key, label, color, initialValue }) => (
           <div key={key} className="resource-card" style={{ borderColor: color }}>
