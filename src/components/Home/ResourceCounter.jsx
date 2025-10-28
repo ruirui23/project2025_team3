@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './ResourceCounter.css';
+import { getParameters, modifyData } from '../../services/data';
 
 function ResourceCounter() {
   const [stats, setStats] = useState({
@@ -9,11 +10,18 @@ function ResourceCounter() {
     money: 1000        // お金
   });
 
+  useEffect(() => {
+    getParameters().then(data => {
+      if (data) setStats(data);
+    }).catch(() => {});
+  }, []);
+
   const updateStat = (statName, amount) => {
-    setStats(prevStats => ({
-      ...prevStats,
-      [statName]: Math.max(0, prevStats[statName] + amount)
-    }));
+    setStats(prevStats => {
+      const newValue = Math.max(0, prevStats[statName] + amount);
+      modifyData(statName, amount).catch(() => {});
+      return { ...prevStats, [statName]: newValue };
+    });
   };
 
   const statConfigs = [
@@ -71,3 +79,4 @@ function ResourceCounter() {
 }
 
 export default ResourceCounter;
+
