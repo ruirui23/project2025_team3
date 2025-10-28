@@ -1,7 +1,7 @@
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import ResourceCounter from './components/ResourceCounter'
+import ResourceCounter from './components/Home/ResourceCounter'
 
 function App() {
   return (
@@ -15,10 +15,8 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      
       {/* リソース管理コンポーネント */}
       <ResourceCounter />
-      
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
