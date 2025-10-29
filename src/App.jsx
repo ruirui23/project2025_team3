@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./App.css";
+import ResourceCounter from "./components/Home/ResourceCounter";
+import BottomNavigation from "./components/common/BottomNavigation";
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+function Tweet() {
+  return <h2>Tweet Page</h2>;
+}
+function Game1() {
+  return <h2>Game1 Page</h2>;
+}
+function Game2() {
+  return <h2>Game2 Page</h2>;
+}
+function Profile() {
+  return <h2>Profile Page</h2>;
 }
 
-export default App
+
+function App() {
+  return (
+    <BrowserRouter>
+      <div style={{ paddingBottom: "60px" }}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <h1>自己管理</h1>
+                <ResourceCounter />
+                <p className="read-the-docs">
+                  Click on the Vite and React logos to learn more
+                </p>
+              </>
+            }
+          />
+          <Route path="/tweet" element={<Tweet />} />
+          <Route path="/game1" element={<Game1 />} />
+          <Route path="/game2" element={<Game2 />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+        <BottomNavigation />
+      </div>
+
+    </BrowserRouter>
+  );
+
+}
+
+export default App;
