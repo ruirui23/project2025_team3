@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BottomNavigation from "../common/BottomNavigation";
+import "./ResourceCounter.css";
+import { getParameters, modifyData } from "../../services/data";
 
 function ResourceCounter() {
   const [stats, setStats] = useState({
@@ -9,11 +11,22 @@ function ResourceCounter() {
     money: 1000, // お金
   });
 
+  // 初回ロード時にサーバーやローカルデータから取得
+  useEffect(() => {
+    getParameters()
+      .then((data) => {
+        if (data) setStats(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  // 値を更新し、データを保存
   const updateStat = (statName, amount) => {
-    setStats((prevStats) => ({
-      ...prevStats,
-      [statName]: Math.max(0, prevStats[statName] + amount),
-    }));
+    setStats((prevStats) => {
+      const newValue = Math.max(0, prevStats[statName] + amount);
+      modifyData(statName, amount).catch(() => {});
+      return { ...prevStats, [statName]: newValue };
+    });
   };
 
   const statConfigs = [
@@ -28,7 +41,7 @@ function ResourceCounter() {
       <div className="resource-container">
         <h2>ステータス</h2>
         <div className="resource-grid">
-          {statConfigs.map(({ key, label, color, initialValue }) => (
+          {statConfigs.map(({ key, label, color }) => (
             <div
               key={key}
               className="resource-card"
@@ -75,6 +88,7 @@ function ResourceCounter() {
         </div>
       </div>
 
+      {/* ボトムナビゲーション */}
       <BottomNavigation />
     </>
   );

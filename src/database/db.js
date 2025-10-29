@@ -43,7 +43,6 @@ class DB {
 
     async updateStatusAll(level, rank, parameter) {
         if (!this.user) return;
-        
         await this.db.status.update(this.user.id, {
             level: JSON.stringify(level),
             rank: JSON.stringify(rank),
@@ -83,11 +82,10 @@ class DB {
         this.user.user_id = newId;
     }
 
-    getStatusAll(){
+    async getStatusAll(){
         if (!this.user) return null;
-
         if (!this.statusCache) {
-            this.statusCache = this.db.status.get(this.user.id);
+            this.statusCache = await this.db.status.get(this.user.id);
         }
         return {
             level: JSON.parse(this.statusCache.level),
@@ -95,16 +93,15 @@ class DB {
             parameter: JSON.parse(this.statusCache.parameter)
         };
     }
-    getStatusOne(key){
+    async getStatusOne(key){
         if (!this.user) return null;
-
         if (!['level', 'rank', 'parameter'].includes(key)) {
             return null;
         }
-
         if (!this.statusCache) {
-            this.statusCache = this.db.status.get(this.user.id);
+            this.statusCache = await this.db.status.get(this.user.id);
         }
+        if (!this.statusCache) return null;
         return JSON.parse(this.statusCache[key]);
     }
 
@@ -121,3 +118,5 @@ class DB {
         return this.user['user_id'];
     }
 }
+
+export { DB };

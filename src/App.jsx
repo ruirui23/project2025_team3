@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import ResourceCounter from "./components/Home/ResourceCounter";
@@ -15,6 +16,7 @@ function Game2() {
 function Profile() {
   return <h2>Profile Page</h2>;
 }
+
 
 function App() {
   return (
@@ -40,8 +42,10 @@ function App() {
         </Routes>
         <BottomNavigation />
       </div>
+
     </BrowserRouter>
   );
+
 }
 
 export default App;
