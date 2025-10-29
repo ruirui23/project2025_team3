@@ -1,9 +1,9 @@
 import { DB } from '../database/db.js'
-
 const TEST_USER = "test";
 const database = new DB(TEST_USER);
 
 // Get関数
+// 引数：Key ("HP", "MP", "EN", "MY")
 export async function getData(key) {
     let data;
     if (key){
@@ -22,6 +22,7 @@ export async function setData(key, val) {
     return data;
 }
 
+// Modify関数
 export async function modifyData(key, val) {
     const data = await database.getStatusOne("parameter") || {};
     data[key] = (data[key] || 0) + val;
