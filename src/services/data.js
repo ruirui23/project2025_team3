@@ -4,7 +4,7 @@ TEST_USER = "test";
 
 database = DB(TEST_USER);
 
-// Get関数
+// Getdate関数
 
 //引数：Key ("HP", "MP", EN, MY)
 function getData(key) {
@@ -30,7 +30,7 @@ function setData(key, val) {
 
 function modifyData(key, val) {
     data = database.getStatusOne("parameter");
-
+// 
     data[key] += val;
 
     database.updateStatusOne("parameter", data);
