@@ -1,6 +1,7 @@
-import { DB } from '../database/db.js'
+import { IndexDB } from '../database/index_db.js'
+const TEST_DB_NAME = "testdb";
 const TEST_USER = "test";
-const database = new DB(TEST_USER);
+const database = new IndexDB(TEST_DB_NAME, TEST_USER);
 
 // Get関数
 // 引数：Key ("HP", "MP", "EN", "MY")
@@ -18,14 +19,6 @@ export async function getData(key) {
 export async function setData(key, val) {
     const data = await database.getStatusOne("parameter");
     data[key] = val;
-    await database.updateStatusOne("parameter", data);
-    return data;
-}
-
-// Modify関数
-export async function modifyData(key, val) {
-    const data = await database.getStatusOne("parameter") || {};
-    data[key] = (data[key] || 0) + val;
     await database.updateStatusOne("parameter", data);
     return data;
 }
