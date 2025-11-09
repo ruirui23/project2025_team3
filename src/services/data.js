@@ -27,3 +27,9 @@ export async function setData(key, val) {
 export async function getParameters() {
     return await database.getStatusOne("parameter") || null;
 }
+
+// パラメータ一括更新
+export async function modifyData(newParameters) {
+    await database.updateStatusOne("parameter", newParameters);
+    return newParameters;
+}
