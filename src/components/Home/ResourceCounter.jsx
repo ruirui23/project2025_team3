@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import BottomNavigation from "../common/BottomNavigation";
+import PostModal from "./PostModal";
 import { getParameters, modifyData } from "../../services/data";
 
 function ResourceCounter() {
@@ -9,6 +10,9 @@ function ResourceCounter() {
     energy: 50, // エネルギー（ご飯）
     money: 1000, // お金
   });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [episodes, setEpisodes] = useState([]);
 
   // 初回ロード時にサーバーやローカルデータから取得
   useEffect(() => {
@@ -22,10 +26,26 @@ function ResourceCounter() {
   // 値を更新し、データを保存
   const updateStat = (statName, amount) => {
     setStats((prevStats) => {
-      const newValue = Math.max(0, prevStats[statName] + amount);
+      const newValue = prevStats[statName] + amount;
       modifyData(statName, amount).catch(() => {});
       return { ...prevStats, [statName]: newValue };
     });
+  };
+
+  // エピソード投稿時の処理
+  const handleEpisodeSubmit = (data) => {
+    // エピソードをリストに追加
+    setEpisodes([data, ...episodes]);
+    
+    // パラメータを更新
+    const newStats = { ...stats };
+    Object.keys(data.parameters).forEach((key) => {
+      newStats[key] = newStats[key] + data.parameters[key];
+      if (data.parameters[key] !== 0) {
+        modifyData(key, data.parameters[key]).catch(() => {});
+      }
+    });
+    setStats(newStats);
   };
 
   const statConfigs = [
@@ -38,6 +58,51 @@ function ResourceCounter() {
   return (
     <>
       <style>{`
+        .status-header {
+          position: fixed;
+          top: 70px;
+          left: 0;
+          right: 0;
+          background: white;
+          padding: 1rem 2rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          z-index: 998;
+        }
+
+        .status-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          justify-content: center;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+
+        .status-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          border: 2px solid;
+          background: white;
+        }
+
+        .status-label {
+          font-size: 0.9rem;
+          font-weight: 600;
+        }
+
+        .status-value {
+          font-size: 1.3rem;
+          font-weight: bold;
+        }
+
+        .main-content {
+          margin-top: 140px;
+          padding-bottom: 80px;
+        }
+
         .resource-container {
           max-width: 1200px;
           margin: 2rem auto;
@@ -51,7 +116,7 @@ function ResourceCounter() {
 
         .resource-container h2 {
           margin: 0 0 2rem 0;
-          font-size: 2rem;
+          font-size: 1.3rem;
           font-weight: 600;
           color: #333;
         }
@@ -61,7 +126,6 @@ function ResourceCounter() {
           flex-wrap: wrap;
           gap: 1.5rem;
           justify-content: center;
-          margin-top: 2rem;
         }
 
         .resource-card {
@@ -72,8 +136,8 @@ function ResourceCounter() {
           backdrop-filter: blur(10px);
           transition: all 0.3s ease;
           flex: 1;
-          min-width: 200px;
-          max-width: 250px;
+          min-width: 150px;
+          max-width: 200px;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
@@ -96,70 +160,46 @@ function ResourceCounter() {
           color: #333;
         }
 
-        .resource-buttons {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 0.5rem;
-          margin-top: 1rem;
-        }
-
-        .resource-btn {
-          padding: 8px 12px;
-          border: none;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          color: white;
-          min-height: 40px;
-        }
-
-        .resource-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .resource-btn:active {
-          transform: translateY(0);
-        }
-
-        .increment-btn {
-          opacity: 0.9;
-        }
-
-        .increment-btn:hover {
-          opacity: 1;
-        }
-
-        .decrement-btn {
-          opacity: 0.8;
-        }
-
-        .decrement-btn:hover {
-          opacity: 1;
-        }
-
         /* レスポンシブデザイン */
         @media (max-width: 768px) {
+          .status-header {
+            top: 60px;
+            padding: 0.8rem 1rem;
+          }
+
+          .status-grid {
+            gap: 0.5rem;
+          }
+
+          .status-item {
+            padding: 0.4rem 0.8rem;
+          }
+
+          .status-label {
+            font-size: 0.8rem;
+          }
+
+          .status-value {
+            font-size: 1.1rem;
+          }
+
+          .main-content {
+            margin-top: 120px;
+          }
+
           .resource-grid {
             flex-direction: column;
             align-items: center;
           }
           
           .resource-card {
-            min-width: 180px;
-            max-width: 300px;
+            min-width: 130px;
+            max-width: 180px;
             width: 100%;
           }
           
           .resource-value {
             font-size: 2rem;
-          }
-          
-          .resource-btn {
-            font-size: 0.8rem;
-            padding: 6px 10px;
           }
         }
 
@@ -168,61 +208,169 @@ function ResourceCounter() {
             padding: 1rem;
             margin: 1rem;
           }
-          
-          .resource-buttons {
-            grid-template-columns: repeat(4, 1fr);
+
+          .status-grid {
+            gap: 0.3rem;
+          }
+
+          .status-item {
+            padding: 0.3rem 0.6rem;
+          }
+        }
+
+        /* フローティングボタン */
+        .floating-button {
+          position: fixed;
+          right: 2rem;
+          bottom: 6rem;
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: #00bcd4;
+          color: white;
+          border: none;
+          font-size: 2rem;
+          line-height: 1;
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+          padding: 0;
+        }
+
+        .floating-button:hover {
+          background: #00acc1;
+        }
+
+        @media (max-width: 768px) {
+          .floating-button {
+            right: 1.5rem;
+            bottom: 5rem;
+            width: 48px;
+            height: 48px;
+            font-size: 1.6rem;
           }
         }
       `}</style>
-      <div className="resource-container">
-        <h2>ステータス</h2>
-        <div className="resource-grid">
+
+      {/* 固定パラメータヘッダー */}
+      <div className="status-header">
+        <div className="status-grid">
           {statConfigs.map(({ key, label, color }) => (
             <div
               key={key}
-              className="resource-card"
+              className="status-item"
               style={{ borderColor: color }}
             >
-              <h3 className="resource-label" style={{ color }}>
+              <span className="status-label" style={{ color }}>
                 {label}
-              </h3>
-              <div className="resource-value" style={{ color }}>
+              </span>
+              <span className="status-value" style={{ color }}>
                 {stats[key]}
-              </div>
-              <div className="resource-buttons">
-                <button
-                  className="resource-btn increment-btn"
-                  onClick={() => updateStat(key, 1)}
-                  style={{ backgroundColor: color }}
-                >
-                  +1
-                </button>
-                <button
-                  className="resource-btn increment-btn"
-                  onClick={() => updateStat(key, 10)}
-                  style={{ backgroundColor: color }}
-                >
-                  +10
-                </button>
-                <button
-                  className="resource-btn decrement-btn"
-                  onClick={() => updateStat(key, -1)}
-                  style={{ backgroundColor: "#666" }}
-                >
-                  -1
-                </button>
-                <button
-                  className="resource-btn decrement-btn"
-                  onClick={() => updateStat(key, -10)}
-                  style={{ backgroundColor: "#666" }}
-                >
-                  -10
-                </button>
-              </div>
+              </span>
             </div>
           ))}
         </div>
       </div>
+
+      {/* メインコンテンツ */}
+      <div className="main-content">
+        {/* エピソードリスト */}
+        {episodes.length > 0 && (
+          <div className="resource-container" style={{
+            marginTop: '2rem',
+          }}>
+            <h3 style={{ 
+              fontSize: '1.3rem', 
+              marginBottom: '1.5rem',
+              color: '#333',
+              textAlign: 'left'
+            }}>
+              タイムライン
+            </h3>
+            {episodes.map((ep) => (
+              <div
+                key={ep.id}
+                style={{
+                  background: 'white',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '12px',
+                  padding: '1.2rem',
+                  marginBottom: '1rem',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: '1rem'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontSize: '0.85rem',
+                      color: '#888',
+                      marginBottom: '0.5rem'
+                    }}>
+                      {ep.date} {ep.time}
+                    </div>
+                    <div style={{
+                      fontSize: '1rem',
+                      color: '#333',
+                      lineHeight: '1.6'
+                    }}>
+                      {ep.episode}
+                    </div>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.3rem',
+                    minWidth: '80px',
+                    alignItems: 'flex-end'
+                  }}>
+                    {statConfigs.map(({ key, label, color }) => {
+                      const value = ep.parameters[key];
+                      if (value === 0) return null;
+                      return (
+                        <div
+                          key={key}
+                          style={{
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            color: color
+                          }}
+                        >
+                          {value > 0 ? '+' : ''}{value}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* フローティング投稿ボタン */}
+      <button 
+        className="floating-button"
+        onClick={() => setIsModalOpen(true)}
+        title="エピソードを投稿"
+      >
+        +
+      </button>
+
+      {/* 投稿モーダル */}
+      <PostModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleEpisodeSubmit}
+      />
 
       {/* ボトムナビゲーション */}
       <BottomNavigation />
