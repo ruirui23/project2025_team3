@@ -214,3 +214,4 @@ class IndexDB {
         return this.user['user_id'];
     }
 }
+export { IndexDB };
