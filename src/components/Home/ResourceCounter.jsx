@@ -1,18 +1,24 @@
 import { useState, useEffect } from "react";
+import {
+  initializeDatabase,
+  saveDataToDB,
+  getAllDataFromDB,
+} from "../../database/index_db";
 import BottomNavigation from "../common/BottomNavigation";
 import PostModal from "./PostModal";
 import { getParameters, modifyData } from "../../services/data";
 
 function ResourceCounter() {
   const [stats, setStats] = useState({
-    health: 100, // 体力
-    stress: 0, // ストレス
-    energy: 50, // エネルギー（ご飯）
-    money: 1000, // お金
+    health: 100,
+    stress: 0,
+    energy: 50,
+    money: 1000,
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [episodes, setEpisodes] = useState([]);
+  const [lastParameters, setLastParameters] = useState(null);
 
   // 初回ロード時にサーバーやローカルデータから取得
   useEffect(() => {
@@ -21,6 +27,32 @@ function ResourceCounter() {
         if (data) setStats(data);
       })
       .catch(() => {});
+  }, []);
+
+  // アプリ起動時にデータベースを初期化
+  useEffect(() => {
+    initializeDatabase()
+      .then(() => {
+        console.log("DB初期化成功");
+        // データベースから日記履歴を取得
+        return getAllDataFromDB();
+      })
+      .then((records) => {
+        if (records && records.length > 0) {
+          console.log("取得した日記履歴:", records);
+          // 時系列で逆順（最新順）にソート
+          const sortedRecords = records.sort(
+            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          );
+          setEpisodes(sortedRecords);
+
+          // 最後のパラメータを取得
+          if (sortedRecords.length > 0) {
+            setLastParameters(sortedRecords[0].parameters);
+          }
+        }
+      })
+      .catch((error) => console.error("DB初期化失敗:", error));
   }, []);
 
   // 値を更新し、データを保存
@@ -32,20 +64,26 @@ function ResourceCounter() {
     });
   };
 
-  // エピソード投稿時の処理
-  const handleEpisodeSubmit = (data) => {
-    // エピソードをリストに追加
-    setEpisodes([data, ...episodes]);
-    
-    // パラメータを更新
-    const newStats = { ...stats };
-    Object.keys(data.parameters).forEach((key) => {
-      newStats[key] = newStats[key] + data.parameters[key];
-      if (data.parameters[key] !== 0) {
-        modifyData(key, data.parameters[key]).catch(() => {});
-      }
-    });
-    setStats(newStats);
+  const handlePostSubmit = async (data) => {
+    try {
+      await saveDataToDB(data);
+      // 最後のパラメータを保存
+      setLastParameters(data.parameters);
+      // エピソードをリストに追加（最新順）
+      setEpisodes([data, ...episodes]);
+
+      // パラメータを更新
+      const newStats = { ...stats };
+      Object.keys(data.parameters).forEach((key) => {
+        newStats[key] = newStats[key] + data.parameters[key];
+        if (data.parameters[key] !== 0) {
+          modifyData(key, data.parameters[key]).catch(() => {});
+        }
+      });
+      setStats(newStats);
+    } catch (error) {
+      console.error("データ保存エラー:", error);
+    }
   };
 
   const statConfigs = [
@@ -279,59 +317,72 @@ function ResourceCounter() {
       <div className="main-content">
         {/* エピソードリスト */}
         {episodes.length > 0 && (
-          <div className="resource-container" style={{
-            marginTop: '2rem',
-          }}>
-            <h3 style={{ 
-              fontSize: '1.3rem', 
-              marginBottom: '1.5rem',
-              color: '#333',
-              textAlign: 'left'
-            }}>
+          <div
+            className="resource-container"
+            style={{
+              marginTop: "2rem",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: "1.3rem",
+                marginBottom: "1.5rem",
+                color: "#333",
+                textAlign: "left",
+              }}
+            >
               タイムライン
             </h3>
             {episodes.map((ep) => (
               <div
                 key={ep.id}
                 style={{
-                  background: 'white',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '12px',
-                  padding: '1.2rem',
-                  marginBottom: '1rem',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-                  transition: 'all 0.3s ease'
+                  background: "white",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "12px",
+                  padding: "1.2rem",
+                  marginBottom: "1rem",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+                  transition: "all 0.3s ease",
                 }}
               >
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  gap: '1rem'
-                }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    gap: "1rem",
+                  }}
+                >
                   <div style={{ flex: 1 }}>
-                    <div style={{
-                      fontSize: '0.85rem',
-                      color: '#888',
-                      marginBottom: '0.5rem'
-                    }}>
+                    <div
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "#888",
+                        marginBottom: "0.5rem",
+                      }}
+                    >
                       {ep.date} {ep.time}
                     </div>
-                    <div style={{
-                      fontSize: '1rem',
-                      color: '#333',
-                      lineHeight: '1.6'
-                    }}>
+                    <div
+                      style={{
+                        fontSize: "1rem",
+                        color: "#333",
+                        lineHeight: "1.6",
+                      }}
+                    >
                       {ep.episode}
                     </div>
                   </div>
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.3rem',
-                    minWidth: '80px',
-                    alignItems: 'flex-end'
-                  }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.3rem",
+                      minWidth: "80px",
+                      alignItems: "flex-end",
+                    }}
+                  >
                     {statConfigs.map(({ key, label, color }) => {
                       const value = ep.parameters[key];
                       if (value === 0) return null;
@@ -339,12 +390,13 @@ function ResourceCounter() {
                         <div
                           key={key}
                           style={{
-                            fontSize: '0.9rem',
-                            fontWeight: '600',
-                            color: color
+                            fontSize: "0.9rem",
+                            fontWeight: "600",
+                            color: color,
                           }}
                         >
-                          {value > 0 ? '+' : ''}{value}
+                          {value > 0 ? "+" : ""}
+                          {value}
                         </div>
                       );
                     })}
@@ -357,7 +409,7 @@ function ResourceCounter() {
       </div>
 
       {/* フローティング投稿ボタン */}
-      <button 
+      <button
         className="floating-button"
         onClick={() => setIsModalOpen(true)}
         title="エピソードを投稿"
@@ -369,7 +421,8 @@ function ResourceCounter() {
       <PostModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleEpisodeSubmit}
+        onSubmit={handlePostSubmit}
+        lastParameters={lastParameters || stats}
       />
 
       {/* ボトムナビゲーション */}

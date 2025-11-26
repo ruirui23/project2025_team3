@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-function PostModal({ isOpen, onClose, onSubmit }) {
+function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
   const [episode, setEpisode] = useState("");
   const [parameters, setParameters] = useState({
-    health: '',
-    stress: '',
-    energy: '',
-    money: '',
+    health: "",
+    stress: "",
+    energy: "",
+    money: "",
   });
 
   const handleSubmit = (e) => {
@@ -14,28 +14,47 @@ function PostModal({ isOpen, onClose, onSubmit }) {
     if (episode.trim()) {
       const data = {
         id: Date.now().toString(),
-        date: new Date().toLocaleDateString('ja-JP', { month: '2-digit', day: '2-digit' }),
-        time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date().toISOString(),
+        date: new Date().toLocaleDateString("ja-JP", {
+          month: "2-digit",
+          day: "2-digit",
+        }),
+        time: new Date().toLocaleTimeString("ja-JP", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         episode: episode.trim(),
         parameters: {
-          health: parameters.health === '' || parameters.health === '-' ? 0 : Number(parameters.health),
-          stress: parameters.stress === '' || parameters.stress === '-' ? 0 : Number(parameters.stress),
-          energy: parameters.energy === '' || parameters.energy === '-' ? 0 : Number(parameters.energy),
-          money: parameters.money === '' || parameters.money === '-' ? 0 : Number(parameters.money)
-        }
+          health:
+            parameters.health === "" || parameters.health === "-"
+              ? lastParameters?.health || 0
+              : Number(parameters.health),
+          stress:
+            parameters.stress === "" || parameters.stress === "-"
+              ? lastParameters?.stress || 0
+              : Number(parameters.stress),
+          energy:
+            parameters.energy === "" || parameters.energy === "-"
+              ? lastParameters?.energy || 0
+              : Number(parameters.energy),
+          money:
+            parameters.money === "" || parameters.money === "-"
+              ? lastParameters?.money || 0
+              : Number(parameters.money),
+        },
       };
       onSubmit(data);
       // フォームをリセット
       setEpisode("");
-      setParameters({ health: '', stress: '', energy: '', money: '' });
+      setParameters({ health: "", stress: "", energy: "", money: "" });
       onClose();
     }
   };
 
   const handleParameterChange = (key, value) => {
-    setParameters(prev => ({
+    setParameters((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
@@ -230,7 +249,11 @@ function PostModal({ isOpen, onClose, onSubmit }) {
                       onChange={(e) => {
                         const value = e.target.value;
                         // 空文字、マイナス記号のみ、または数字を含む有効な値のみ許可
-                        if (value === '' || value === '-' || /^-?\d+$/.test(value)) {
+                        if (
+                          value === "" ||
+                          value === "-" ||
+                          /^-?\d+$/.test(value)
+                        ) {
                           handleParameterChange(key, value);
                         }
                       }}
@@ -240,7 +263,11 @@ function PostModal({ isOpen, onClose, onSubmit }) {
                 ))}
               </div>
             </div>
-            <button type="submit" className="submit-btn" disabled={!episode.trim()}>
+            <button
+              type="submit"
+              className="submit-btn"
+              disabled={!episode.trim()}
+            >
               投稿する
             </button>
           </form>
