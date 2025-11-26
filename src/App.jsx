@@ -1,12 +1,9 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import ResourceCounter from "./components/Home/ResourceCounter";
 import BottomNavigation from "./components/common/BottomNavigation";
+import Tweet from "./components/Tweet/Tweet";
 
-function Tweet() {
-  return <h2>Tweet Page</h2>;
-}
 function Game1() {
   return <h2>Game1 Page</h2>;
 }
@@ -16,7 +13,6 @@ function Game2() {
 function Profile() {
   return <h2>Profile Page</h2>;
 }
-
 
 function App() {
   return (
