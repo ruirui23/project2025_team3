@@ -301,18 +301,27 @@ export function updatePostInDB(id, data) {
       posts: "id",
     });
 
-    db.open().then(() => {
-      db.posts
-        .update(id, data)
-        .then(() => {
-          console.log("投稿を更新しました:", id, data);
-          resolve(data);
-        })
-        .catch((error) => {
-          console.error("投稿更新エラー:", error);
-          reject(error);
-        });
-    });
+    db.open()
+      .then(() => {
+        db.posts
+          .update(id, data)
+          .then((updated) => {
+            if (updated) {
+              console.log("投稿を更新しました:", id, data);
+              resolve(data);
+            } else {
+              reject(new Error(`投稿が見つかりません: ${id}`));
+            }
+          })
+          .catch((error) => {
+            console.error("投稿更新エラー:", error);
+            reject(error);
+          });
+      })
+      .catch((error) => {
+        console.error("データベース接続エラー:", error);
+        reject(error);
+      });
   });
 }
 
@@ -327,18 +336,23 @@ export function deletePostFromDB(id) {
       posts: "id",
     });
 
-    db.open().then(() => {
-      db.posts
-        .delete(id)
-        .then(() => {
-          console.log("投稿を削除しました:", id);
-          resolve(id);
-        })
-        .catch((error) => {
-          console.error("投稿削除エラー:", error);
-          reject(error);
-        });
-    });
+    db.open()
+      .then(() => {
+        db.posts
+          .delete(id)
+          .then(() => {
+            console.log("投稿を削除しました:", id);
+            resolve(id);
+          })
+          .catch((error) => {
+            console.error("投稿削除エラー:", error);
+            reject(error);
+          });
+      })
+      .catch((error) => {
+        console.error("データベース接続エラー:", error);
+        reject(error);
+      });
   });
 }
 

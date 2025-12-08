@@ -62,9 +62,9 @@ function ResourceCounter() {
   // 値を更新し、データを保存
   const updateStat = (statName, amount) => {
     setStats((prevStats) => {
-      const newValue = prevStats[statName] + amount;
-      modifyData(statName, amount).catch(() => {});
-      return { ...prevStats, [statName]: newValue };
+      const newStats = { ...prevStats, [statName]: prevStats[statName] + amount };
+      modifyData(newStats).catch(() => {});
+      return newStats;
     });
   };
 
@@ -82,13 +82,17 @@ function ResourceCounter() {
         // パラメータの差分を計算して更新
         const oldParams = editingPost.parameters;
         const newStats = { ...stats };
+        let hasChanges = false;
         Object.keys(data.parameters).forEach((key) => {
           const diff = data.parameters[key] - oldParams[key];
           if (diff !== 0) {
             newStats[key] = newStats[key] + diff;
-            modifyData(key, diff).catch(() => {});
+            hasChanges = true;
           }
         });
+        if (hasChanges) {
+          modifyData(newStats).catch(() => {});
+        }
         setStats(newStats);
         setEditingPost(null);
       } else {
@@ -103,10 +107,8 @@ function ResourceCounter() {
         const newStats = { ...stats };
         Object.keys(data.parameters).forEach((key) => {
           newStats[key] = newStats[key] + data.parameters[key];
-          if (data.parameters[key] !== 0) {
-            modifyData(key, data.parameters[key]).catch(() => {});
-          }
         });
+        modifyData(newStats).catch(() => {});
         setStats(newStats);
       }
     } catch (error) {
@@ -130,10 +132,8 @@ function ResourceCounter() {
         const newStats = { ...stats };
         Object.keys(post.parameters).forEach((key) => {
           newStats[key] = newStats[key] - post.parameters[key];
-          if (post.parameters[key] !== 0) {
-            modifyData(key, -post.parameters[key]).catch(() => {});
-          }
         });
+        modifyData(newStats).catch(() => {});
         setStats(newStats);
       } catch (error) {
         console.error("データ削除エラー:", error);
