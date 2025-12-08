@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { analyzeEpisodeParameters } from "../../services/gemini";
 
-function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
+function PostModal({ isOpen, onClose, onSubmit, lastParameters, editData }) {
   const [episode, setEpisode] = useState("");
   const [parameters, setParameters] = useState({
     health: "",
@@ -11,40 +11,79 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
   });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  // 編集モードの場合、データをセット
+  useEffect(() => {
+    if (editData) {
+      setEpisode(editData.episode || "");
+      setParameters({
+        health: editData.parameters?.health?.toString() || "",
+        stress: editData.parameters?.stress?.toString() || "",
+        energy: editData.parameters?.energy?.toString() || "",
+        money: editData.parameters?.money?.toString() || "",
+      });
+    } else {
+      setEpisode("");
+      setParameters({ health: "", stress: "", energy: "", money: "" });
+    }
+  }, [editData, isOpen]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (episode.trim()) {
-      const data = {
-        id: Date.now().toString(),
-        timestamp: new Date().toISOString(),
-        date: new Date().toLocaleDateString("ja-JP", {
-          month: "2-digit",
-          day: "2-digit",
-        }),
-        time: new Date().toLocaleTimeString("ja-JP", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        episode: episode.trim(),
-        parameters: {
-          health:
-            parameters.health === "" || parameters.health === "-"
-              ? lastParameters?.health || 0
-              : Number(parameters.health),
-          stress:
-            parameters.stress === "" || parameters.stress === "-"
-              ? lastParameters?.stress || 0
-              : Number(parameters.stress),
-          energy:
-            parameters.energy === "" || parameters.energy === "-"
-              ? lastParameters?.energy || 0
-              : Number(parameters.energy),
-          money:
-            parameters.money === "" || parameters.money === "-"
-              ? lastParameters?.money || 0
-              : Number(parameters.money),
-        },
-      };
+      const data = editData
+        ? {
+            ...editData,
+            episode: episode.trim(),
+            parameters: {
+              health:
+                parameters.health === "" || parameters.health === "-"
+                  ? lastParameters?.health || 0
+                  : Number(parameters.health),
+              stress:
+                parameters.stress === "" || parameters.stress === "-"
+                  ? lastParameters?.stress || 0
+                  : Number(parameters.stress),
+              energy:
+                parameters.energy === "" || parameters.energy === "-"
+                  ? lastParameters?.energy || 0
+                  : Number(parameters.energy),
+              money:
+                parameters.money === "" || parameters.money === "-"
+                  ? lastParameters?.money || 0
+                  : Number(parameters.money),
+            },
+          }
+        : {
+            id: Date.now().toString(),
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleDateString("ja-JP", {
+              month: "2-digit",
+              day: "2-digit",
+            }),
+            time: new Date().toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            episode: episode.trim(),
+            parameters: {
+              health:
+                parameters.health === "" || parameters.health === "-"
+                  ? lastParameters?.health || 0
+                  : Number(parameters.health),
+              stress:
+                parameters.stress === "" || parameters.stress === "-"
+                  ? lastParameters?.stress || 0
+                  : Number(parameters.stress),
+              energy:
+                parameters.energy === "" || parameters.energy === "-"
+                  ? lastParameters?.energy || 0
+                  : Number(parameters.energy),
+              money:
+                parameters.money === "" || parameters.money === "-"
+                  ? lastParameters?.money || 0
+                  : Number(parameters.money),
+            },
+          };
       onSubmit(data);
       // フォームをリセット
       setEpisode("");
@@ -282,7 +321,7 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
           <button className="close-btn" onClick={onClose}>
             ×
           </button>
-          <h2>日記を投稿</h2>
+          <h2>{editData ? "日記を編集" : "日記を投稿"}</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>今日のできごと</label>
@@ -336,7 +375,7 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
               className="submit-btn"
               disabled={!episode.trim()}
             >
-              投稿する
+              {editData ? "更新する" : "投稿する"}
             </button>
           </form>
         </div>
