@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { analyzeEpisodeParameters } from "../../services/gemini";
 
 function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
   const [episode, setEpisode] = useState("");
@@ -8,6 +9,7 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
     energy: "",
     money: "",
   });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -56,6 +58,28 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
       ...prev,
       [key]: value,
     }));
+  };
+
+  const handleAiAnalysis = async () => {
+    if (!episode.trim()) {
+      alert("まず「今日のできごと」を入力してください。");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    try {
+      const analyzedParams = await analyzeEpisodeParameters(episode);
+      setParameters({
+        health: analyzedParams.health.toString(),
+        stress: analyzedParams.stress.toString(),
+        energy: analyzedParams.energy.toString(),
+        money: analyzedParams.money.toString(),
+      });
+    } catch (error) {
+      alert(error.message || "エラーが発生しました。もう一度お試しください。");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -209,6 +233,40 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
           line-height: 1.6;
         }
 
+        .parameter-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .ai-button {
+          padding: 0.4rem 0.8rem;
+          background: #757575;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+
+        .ai-button:hover:not(:disabled) {
+          background: #616161;
+        }
+
+        .ai-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .ai-button:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
         @media (max-width: 480px) {
           .modal-content {
             padding: 1.5rem;
@@ -236,7 +294,17 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters }) {
               />
             </div>
             <div className="form-group">
-              <label>パラメータ変化</label>
+              <div className="parameter-header">
+                <button
+                  type="button"
+                  className="ai-button"
+                  onClick={handleAiAnalysis}
+                  disabled={isAnalyzing || !episode.trim()}
+                >
+                  {isAnalyzing ? "分析中..." : "AIによる独断"}
+                </button>
+                <label>パラメータ変化</label>
+              </div>
               <div className="parameters-grid">
                 {paramConfigs.map(({ key, label, color }) => (
                   <div key={key} className="parameter-item">
