@@ -3,6 +3,8 @@ import {
   initializeDatabase,
   saveDataToDB,
   getAllDataFromDB,
+  updatePostInDB,
+  deletePostFromDB,
 } from "../../database/index_db";
 import BottomNavigation from "../common/BottomNavigation";
 import PostModal from "./PostModal";
@@ -19,6 +21,8 @@ function ResourceCounter() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [episodes, setEpisodes] = useState([]);
   const [lastParameters, setLastParameters] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
+  const [expandedPostId, setExpandedPostId] = useState(null);
 
   // 初回ロード時にサーバーやローカルデータから取得
   useEffect(() => {
@@ -58,32 +62,92 @@ function ResourceCounter() {
   // 値を更新し、データを保存
   const updateStat = (statName, amount) => {
     setStats((prevStats) => {
-      const newValue = prevStats[statName] + amount;
-      modifyData(statName, amount).catch(() => {});
-      return { ...prevStats, [statName]: newValue };
+      const newStats = { ...prevStats, [statName]: prevStats[statName] + amount };
+      modifyData(newStats).catch(() => {});
+      return newStats;
     });
   };
 
   const handlePostSubmit = async (data) => {
     try {
-      await saveDataToDB(data);
-      // 最後のパラメータを保存
-      setLastParameters(data.parameters);
-      // エピソードをリストに追加（最新順）
-      setEpisodes([data, ...episodes]);
+      if (editingPost) {
+        // 編集モード
+        await updatePostInDB(data.id, data);
+        // エピソードリストを更新
+        const updatedEpisodes = episodes.map((ep) =>
+          ep.id === data.id ? data : ep
+        );
+        setEpisodes(updatedEpisodes);
 
-      // パラメータを更新
-      const newStats = { ...stats };
-      Object.keys(data.parameters).forEach((key) => {
-        newStats[key] = newStats[key] + data.parameters[key];
-        if (data.parameters[key] !== 0) {
-          modifyData(key, data.parameters[key]).catch(() => {});
+        // パラメータの差分を計算して更新
+        const oldParams = editingPost.parameters;
+        const newStats = { ...stats };
+        let hasChanges = false;
+        Object.keys(data.parameters).forEach((key) => {
+          const diff = data.parameters[key] - oldParams[key];
+          if (diff !== 0) {
+            newStats[key] = newStats[key] + diff;
+            hasChanges = true;
+          }
+        });
+        if (hasChanges) {
+          modifyData(newStats).catch(() => {});
         }
-      });
-      setStats(newStats);
+        setStats(newStats);
+        setEditingPost(null);
+      } else {
+        // 新規投稿モード
+        await saveDataToDB(data);
+        // 最後のパラメータを保存
+        setLastParameters(data.parameters);
+        // エピソードをリストに追加（最新順）
+        setEpisodes([data, ...episodes]);
+
+        // パラメータを更新
+        const newStats = { ...stats };
+        Object.keys(data.parameters).forEach((key) => {
+          newStats[key] = newStats[key] + data.parameters[key];
+        });
+        modifyData(newStats).catch(() => {});
+        setStats(newStats);
+      }
     } catch (error) {
       console.error("データ保存エラー:", error);
     }
+  };
+
+  const handleEditPost = (post) => {
+    setEditingPost(post);
+    setIsModalOpen(true);
+  };
+
+  const handleDeletePost = async (post) => {
+    if (window.confirm("この投稿を削除しますか？")) {
+      try {
+        await deletePostFromDB(post.id);
+        // エピソードリストから削除
+        setEpisodes(episodes.filter((ep) => ep.id !== post.id));
+
+        // パラメータを戻す
+        const newStats = { ...stats };
+        Object.keys(post.parameters).forEach((key) => {
+          newStats[key] = newStats[key] - post.parameters[key];
+        });
+        modifyData(newStats).catch(() => {});
+        setStats(newStats);
+      } catch (error) {
+        console.error("データ削除エラー:", error);
+      }
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingPost(null);
+  };
+
+  const togglePostActions = (postId) => {
+    setExpandedPostId(expandedPostId === postId ? null : postId);
   };
 
   const statConfigs = [
@@ -196,6 +260,64 @@ function ResourceCounter() {
           font-weight: bold;
           margin: 1rem 0;
           color: #333;
+        }
+
+        .post-episode {
+          cursor: pointer;
+          transition: background 0.2s;
+          padding: 0.5rem;
+          border-radius: 6px;
+          margin: -0.5rem;
+        }
+
+        .post-episode:hover {
+          background: rgba(0, 0, 0, 0.02);
+        }
+
+        .post-actions {
+          display: flex;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+          animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .post-action-btn {
+          padding: 0.4rem 0.8rem;
+          border: none;
+          border-radius: 6px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .edit-btn {
+          background: #2196F3;
+          color: white;
+        }
+
+        .edit-btn:hover {
+          background: #1976D2;
+        }
+
+        .delete-btn {
+          background: #f44336;
+          color: white;
+        }
+
+        .delete-btn:hover {
+          background: #d32f2f;
         }
 
         /* レスポンシブデザイン */
@@ -365,6 +487,8 @@ function ResourceCounter() {
                       {ep.date} {ep.time}
                     </div>
                     <div
+                      className="post-episode"
+                      onClick={() => togglePostActions(ep.id)}
                       style={{
                         fontSize: "1rem",
                         color: "#333",
@@ -373,6 +497,22 @@ function ResourceCounter() {
                     >
                       {ep.episode}
                     </div>
+                    {expandedPostId === ep.id && (
+                      <div className="post-actions">
+                        <button
+                          className="post-action-btn edit-btn"
+                          onClick={() => handleEditPost(ep)}
+                        >
+                          編集
+                        </button>
+                        <button
+                          className="post-action-btn delete-btn"
+                          onClick={() => handleDeletePost(ep)}
+                        >
+                          削除
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div
                     style={{
@@ -420,9 +560,10 @@ function ResourceCounter() {
       {/* 投稿モーダル */}
       <PostModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         onSubmit={handlePostSubmit}
         lastParameters={lastParameters || stats}
+        editData={editingPost}
       />
 
       {/* ボトムナビゲーション */}
