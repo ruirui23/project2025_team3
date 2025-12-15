@@ -5,10 +5,12 @@ import {
   getAllDataFromDB,
   updatePostInDB,
   deletePostFromDB,
+  updatePostCommentInDB,
 } from "../../database/index_db";
 import BottomNavigation from "../common/BottomNavigation";
 import PostModal from "./PostModal";
 import { getParameters, modifyData } from "../../services/data";
+import { generateEncouragingComment } from "../../services/gemini";
 
 function ResourceCounter() {
   const [stats, setStats] = useState({
@@ -23,6 +25,9 @@ function ResourceCounter() {
   const [lastParameters, setLastParameters] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
   const [expandedPostId, setExpandedPostId] = useState(null);
+  const [commentExpandedPostIds, setCommentExpandedPostIds] = useState(new Set());
+  const [loadingCommentPostId, setLoadingCommentPostId] = useState(null);
+  const [commentErrors, setCommentErrors] = useState({});
 
   // 初回ロード時にサーバーやローカルデータから取得
   useEffect(() => {
@@ -148,6 +153,49 @@ function ResourceCounter() {
 
   const togglePostActions = (postId) => {
     setExpandedPostId(expandedPostId === postId ? null : postId);
+  };
+
+  const toggleAiComment = async (post) => {
+    // 既に開いている場合は閉じる
+    if (commentExpandedPostIds.has(post.id)) {
+      setCommentExpandedPostIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(post.id);
+        return newSet;
+      });
+      return;
+    }
+
+    // 初回生成の場合
+    if (!post.aiComment) {
+      setLoadingCommentPostId(post.id);
+      setCommentErrors((prev) => ({ ...prev, [post.id]: null }));
+
+      try {
+        const comment = await generateEncouragingComment(post.episode, post.parameters);
+        await updatePostCommentInDB(post.id, comment);
+
+        // エピソードリストを更新
+        setEpisodes((prevEpisodes) =>
+          prevEpisodes.map((ep) =>
+            ep.id === post.id ? { ...ep, aiComment: comment } : ep
+          )
+        );
+
+        setCommentExpandedPostIds((prev) => new Set(prev).add(post.id));
+      } catch (error) {
+        console.error("AIコメント生成エラー:", error);
+        setCommentErrors((prev) => ({
+          ...prev,
+          [post.id]: error.message || "コメントの生成に失敗しました"
+        }));
+      } finally {
+        setLoadingCommentPostId(null);
+      }
+    } else {
+      // 既に生成済みの場合は表示のみ
+      setCommentExpandedPostIds((prev) => new Set(prev).add(post.id));
+    }
   };
 
   const statConfigs = [
@@ -541,6 +589,95 @@ function ResourceCounter() {
                       );
                     })}
                   </div>
+                </div>
+
+                {/* AIコメントセクション */}
+                <div style={{ marginTop: "0.8rem", borderTop: "1px solid #f0f0f0", paddingTop: "0.8rem" }}>
+                  <button
+                    onClick={() => toggleAiComment(ep)}
+                    disabled={loadingCommentPostId === ep.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      background: "none",
+                      border: "none",
+                      color: "#757575",
+                      fontSize: "0.85rem",
+                      cursor: loadingCommentPostId === ep.id ? "not-allowed" : "pointer",
+                      padding: "0.4rem",
+                      borderRadius: "4px",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (loadingCommentPostId !== ep.id) {
+                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.03)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "none";
+                    }}
+                  >
+                    <span style={{
+                      transform: commentExpandedPostIds.has(ep.id) ? "rotate(180deg)" : "rotate(0deg)",
+                      transition: "transform 0.2s",
+                      display: "inline-block",
+                    }}>
+                      ▽
+                    </span>
+                    <span>
+                      {loadingCommentPostId === ep.id
+                        ? "コメント生成中..."
+                        : ep.aiComment
+                          ? "AIコメント"
+                          : "AIコメントを見る"}
+                    </span>
+                  </button>
+
+                  {commentExpandedPostIds.has(ep.id) && ep.aiComment && (
+                    <div
+                      style={{
+                        marginTop: "0.8rem",
+                        padding: "1rem",
+                        background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                        borderRadius: "8px",
+                        borderLeft: "3px solid #00bcd4",
+                        animation: "slideDown 0.3s ease-out",
+                      }}
+                    >
+                      <div style={{
+                        fontSize: "0.75rem",
+                        color: "#757575",
+                        marginBottom: "0.5rem",
+                        fontWeight: "600",
+                      }}>
+                        AIからのコメント
+                      </div>
+                      <div style={{
+                        fontSize: "0.95rem",
+                        color: "#333",
+                        lineHeight: "1.6",
+                      }}>
+                        {ep.aiComment}
+                      </div>
+                    </div>
+                  )}
+
+                  {commentErrors[ep.id] && (
+                    <div
+                      style={{
+                        marginTop: "0.8rem",
+                        padding: "0.8rem",
+                        background: "#ffebee",
+                        borderRadius: "6px",
+                        borderLeft: "3px solid #f44336",
+                        fontSize: "0.85rem",
+                        color: "#c62828",
+                      }}
+                    >
+                      {commentErrors[ep.id]}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

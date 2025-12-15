@@ -65,3 +65,49 @@ ${episode}
     throw new Error("パラメータの分析に失敗しました。もう一度お試しください。");
   }
 }
+
+/**
+ * 日記の内容に対して励まし・共感系のコメントを生成する
+ * @param {string} episode - 日記の内容
+ * @param {Object} parameters - パラメータ変化
+ * @returns {Promise<string>} - AIが生成したコメント
+ */
+export async function generateEncouragingComment(episode, parameters) {
+  try {
+    if (!API_KEY) {
+      throw new Error("APIキーが設定されていません");
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+    // パラメータ変化をテキスト化
+    const paramTexts = [];
+    if (parameters.health !== 0) paramTexts.push(`体力${parameters.health > 0 ? '+' : ''}${parameters.health}`);
+    if (parameters.stress !== 0) paramTexts.push(`ストレス${parameters.stress > 0 ? '+' : ''}${parameters.stress}`);
+    if (parameters.energy !== 0) paramTexts.push(`空腹度${parameters.energy > 0 ? '+' : ''}${parameters.energy}`);
+    if (parameters.money !== 0) paramTexts.push(`お金${parameters.money > 0 ? '+' : ''}${parameters.money}`);
+    const paramString = paramTexts.length > 0 ? `\n\nパラメータ変化：${paramTexts.join('、')}` : '';
+
+    const prompt = `あなたは温かく励ましてくれる友人です。
+以下の日記を読んで、2-3文で共感的で温かいコメントをしてください。${paramString}
+
+日記の内容：
+${episode}
+
+注意事項：
+- 50-100文字程度
+- 共感的で温かい口調
+- 具体的な内容に言及
+- 励ましや肯定的な視点を含める
+- 上から目線にならない
+
+生のテキストのみを返してください。マークダウンやJSONは不要です。`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text().trim();
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    throw new Error("コメントの生成に失敗しました。もう一度お試しください。");
+  }
+}
