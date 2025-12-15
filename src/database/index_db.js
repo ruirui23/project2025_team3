@@ -356,4 +356,44 @@ export function deletePostFromDB(id) {
   });
 }
 
+/**
+ * 投稿にAIコメントを追加・更新する関数
+ * @param {string} id - 投稿ID
+ * @param {string} aiComment - AIが生成したコメント
+ * @returns {Promise<Object>} - 更新後のデータ
+ */
+export function updatePostCommentInDB(id, aiComment) {
+  return new Promise((resolve, reject) => {
+    const db = new Dexie("GameDatabase");
+    db.version(1).stores({
+      users: "++id, &user_id, user_name, user_pass",
+      status: "++id, level, rank, parameter",
+      diaries: "++id, &diary_id, entries",
+      posts: "id",
+    });
+
+    db.open()
+      .then(() => {
+        db.posts
+          .update(id, { aiComment, commentGeneratedAt: new Date().toISOString() })
+          .then((updated) => {
+            if (updated) {
+              console.log("AIコメントを保存しました:", id);
+              resolve({ id, aiComment });
+            } else {
+              reject(new Error(`投稿が見つかりません: ${id}`));
+            }
+          })
+          .catch((error) => {
+            console.error("AIコメント保存エラー:", error);
+            reject(error);
+          });
+      })
+      .catch((error) => {
+        console.error("データベース接続エラー:", error);
+        reject(error);
+      });
+  });
+}
+
 export { IndexDB };
