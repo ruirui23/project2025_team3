@@ -20,7 +20,7 @@ export const initGemini = () => {
   if (!apiKey) {
     console.error("⚠️ Gemini API Keyが設定されていません！");
     console.error("📝 手順:");
-    console.error("  1. プロジェクトルート (C:\\Users\\ikino\\project2025_team3) に .env ファイルがあるか確認");
+    console.error("  1. プロジェクトルートに .env ファイルがあるか確認");
     console.error("  2. .env ファイルの内容を確認:");
     console.error("     VITE_GEMINI_API_KEY=AIzaSy... (実際のAPIキー)");
     console.error("  3. スペースや引用符がないか確認");
