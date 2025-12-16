@@ -1,4 +1,5 @@
 import Dexie from "dexie";
+import { CALENDER_DATA } from "../services/test_db.js";
 
 class IndexDB {
   constructor(db_name, user_id) {
@@ -133,7 +134,7 @@ class IndexDB {
     this.user.user_id = newId;
   }
 
-  getStatusAll() {
+  async getStatusAll() {
     /*
      * 取得：ステータス
      *
@@ -145,14 +146,16 @@ class IndexDB {
      */
     if (!this.user) return null;
 
-    this.statusCache = this.db.status.get(this.user.id);
+    const status = await this.db.status.get(this.user.id);
+    if (!status) return null;
+
     return {
-      level: JSON.parse(this.statusCache.level),
-      rank: JSON.parse(this.statusCache.rank),
-      parameter: JSON.parse(this.statusCache.parameter),
+      level: JSON.parse(status.level ?? "{}"),
+      rank: JSON.parse(status.rank ?? "{}"),
+      parameter: JSON.parse(status.parameter ?? "{}"),
     };
   }
-  getStatusOne(key) {
+  async getStatusOne(key) {
     /*
      * 取得：１つのステータス
      *
@@ -168,7 +171,10 @@ class IndexDB {
       return null;
     }
 
-    return JSON.parse(this.db.status.get(this.user.id)[key]);
+    const status = await this.db.status.get(this.user.id);
+    if (!status) return null;
+
+    return JSON.parse(status[key] ?? "{}");
   }
 
   getDiariy(key) {
