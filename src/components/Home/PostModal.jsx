@@ -1,51 +1,133 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { analyzeEpisodeParameters } from "../../services/gemini";
 
-function PostModal({ isOpen, onClose, onSubmit }) {
+function PostModal({ isOpen, onClose, onSubmit, lastParameters, editData }) {
   const [episode, setEpisode] = useState("");
   const [parameters, setParameters] = useState({
-    health: '',
-    stress: '',
-    energy: '',
-    money: '',
+    health: "",
+    happiness: "",
+    mentalState: "",
+    hunger: "",
   });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // 編集モードの場合、データをセット
+  useEffect(() => {
+    if (editData) {
+      setEpisode(editData.episode || "");
+      setParameters({
+        health: editData.parameters?.health?.toString() || "",
+        happiness: editData.parameters?.happiness?.toString() || "",
+        mentalState: editData.parameters?.mentalState?.toString() || "",
+        hunger: editData.parameters?.hunger?.toString() || "",
+      });
+    } else {
+      setEpisode("");
+      setParameters({ health: "", happiness: "", mentalState: "", hunger: "" });
+    }
+  }, [editData, isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (episode.trim()) {
-      const data = {
-        id: Date.now().toString(),
-        date: new Date().toLocaleDateString('ja-JP', { month: '2-digit', day: '2-digit' }),
-        time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
-        episode: episode.trim(),
-        parameters: {
-          health: parameters.health === '' || parameters.health === '-' ? 0 : Number(parameters.health),
-          stress: parameters.stress === '' || parameters.stress === '-' ? 0 : Number(parameters.stress),
-          energy: parameters.energy === '' || parameters.energy === '-' ? 0 : Number(parameters.energy),
-          money: parameters.money === '' || parameters.money === '-' ? 0 : Number(parameters.money)
-        }
-      };
+      const data = editData
+        ? {
+            ...editData,
+            episode: episode.trim(),
+            parameters: {
+              health:
+                parameters.health === "" || parameters.health === "-"
+                  ? lastParameters?.health || 0
+                  : Number(parameters.health),
+              happiness:
+                parameters.happiness === "" || parameters.happiness === "-"
+                  ? lastParameters?.happiness || 0
+                  : Number(parameters.happiness),
+              mentalState:
+                parameters.mentalState === "" || parameters.mentalState === "-"
+                  ? lastParameters?.mentalState || 0
+                  : Number(parameters.mentalState),
+              hunger:
+                parameters.hunger === "" || parameters.hunger === "-"
+                  ? lastParameters?.hunger || 0
+                  : Number(parameters.hunger),
+            },
+          }
+        : {
+            id: Date.now().toString(),
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleDateString("ja-JP", {
+              month: "2-digit",
+              day: "2-digit",
+            }),
+            time: new Date().toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            episode: episode.trim(),
+            parameters: {
+              health:
+                parameters.health === "" || parameters.health === "-"
+                  ? lastParameters?.health || 0
+                  : Number(parameters.health),
+              happiness:
+                parameters.happiness === "" || parameters.happiness === "-"
+                  ? lastParameters?.happiness || 0
+                  : Number(parameters.happiness),
+              mentalState:
+                parameters.mentalState === "" || parameters.mentalState === "-"
+                  ? lastParameters?.mentalState || 0
+                  : Number(parameters.mentalState),
+              hunger:
+                parameters.hunger === "" || parameters.hunger === "-"
+                  ? lastParameters?.hunger || 0
+                  : Number(parameters.hunger),
+            },
+          };
       onSubmit(data);
       // フォームをリセット
       setEpisode("");
-      setParameters({ health: '', stress: '', energy: '', money: '' });
+      setParameters({ health: "", happiness: "", mentalState: "", hunger: "" });
       onClose();
     }
   };
 
   const handleParameterChange = (key, value) => {
-    setParameters(prev => ({
+    setParameters((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
+  };
+
+  const handleAiAnalysis = async () => {
+    if (!episode.trim()) {
+      alert("まず「今日のできごと」を入力してください。");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    try {
+      const analyzedParams = await analyzeEpisodeParameters(episode);
+      setParameters({
+        health: analyzedParams.health.toString(),
+        happiness: analyzedParams.happiness.toString(),
+        mentalState: analyzedParams.mentalState.toString(),
+        hunger: analyzedParams.hunger.toString(),
+      });
+    } catch (error) {
+      alert(error.message || "エラーが発生しました。もう一度お試しください。");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   if (!isOpen) return null;
 
   const paramConfigs = [
-    { key: "health", label: "体力", color: "#4CAF50" },
-    { key: "stress", label: "ストレス", color: "#f44336" },
-    { key: "energy", label: "空腹度", color: "#FF9800" },
-    { key: "money", label: "お金", color: "#2196F3" },
+    { key: "health", label: "健康", color: "#4CAF50" },
+    { key: "happiness", label: "幸福度", color: "#FF9800" },
+    { key: "mentalState", label: "精神状態", color: "#2196F3" },
+    { key: "hunger", label: "満腹度", color: "#f44336" },
   ];
 
   return (
@@ -190,6 +272,40 @@ function PostModal({ isOpen, onClose, onSubmit }) {
           line-height: 1.6;
         }
 
+        .parameter-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .ai-button {
+          padding: 0.4rem 0.8rem;
+          background: #757575;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+
+        .ai-button:hover:not(:disabled) {
+          background: #616161;
+        }
+
+        .ai-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .ai-button:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
         @media (max-width: 480px) {
           .modal-content {
             padding: 1.5rem;
@@ -205,7 +321,7 @@ function PostModal({ isOpen, onClose, onSubmit }) {
           <button className="close-btn" onClick={onClose}>
             ×
           </button>
-          <h2>日記を投稿</h2>
+          <h2>{editData ? "日記を編集" : "日記を投稿"}</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>今日のできごと</label>
@@ -217,7 +333,17 @@ function PostModal({ isOpen, onClose, onSubmit }) {
               />
             </div>
             <div className="form-group">
-              <label>パラメータ変化</label>
+              <div className="parameter-header">
+                <button
+                  type="button"
+                  className="ai-button"
+                  onClick={handleAiAnalysis}
+                  disabled={isAnalyzing || !episode.trim()}
+                >
+                  {isAnalyzing ? "分析中..." : "AIによる独断"}
+                </button>
+                <label>パラメータ変化</label>
+              </div>
               <div className="parameters-grid">
                 {paramConfigs.map(({ key, label, color }) => (
                   <div key={key} className="parameter-item">
@@ -230,7 +356,11 @@ function PostModal({ isOpen, onClose, onSubmit }) {
                       onChange={(e) => {
                         const value = e.target.value;
                         // 空文字、マイナス記号のみ、または数字を含む有効な値のみ許可
-                        if (value === '' || value === '-' || /^-?\d+$/.test(value)) {
+                        if (
+                          value === "" ||
+                          value === "-" ||
+                          /^-?\d+$/.test(value)
+                        ) {
                           handleParameterChange(key, value);
                         }
                       }}
@@ -240,8 +370,12 @@ function PostModal({ isOpen, onClose, onSubmit }) {
                 ))}
               </div>
             </div>
-            <button type="submit" className="submit-btn" disabled={!episode.trim()}>
-              投稿する
+            <button
+              type="submit"
+              className="submit-btn"
+              disabled={!episode.trim()}
+            >
+              {editData ? "更新する" : "投稿する"}
             </button>
           </form>
         </div>
