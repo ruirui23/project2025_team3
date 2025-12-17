@@ -687,6 +687,7 @@ function ResourceCounter() {
 
       {/* フローティング投稿ボタン */}
       <button
+        type="button"
         className="floating-button"
         onClick={() => setIsModalOpen(true)}
         title="エピソードを投稿"

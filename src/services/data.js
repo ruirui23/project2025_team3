@@ -18,6 +18,9 @@ export async function getData(key) {
 // Update関数
 export async function setData(key, val) {
     const data = await database.getStatusOne("parameter");
+    if (!data) {
+        throw new Error("Parameter data not found");
+    }
     data[key] = val;
     await database.updateStatusOne("parameter", data);
     return data;
