@@ -28,14 +28,18 @@ function ResourceCounter() {
   const [commentExpandedPostIds, setCommentExpandedPostIds] = useState(new Set());
   const [loadingCommentPostId, setLoadingCommentPostId] = useState(null);
   const [commentErrors, setCommentErrors] = useState({});
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
 
   // 初回ロード時にサーバーやローカルデータから取得
   useEffect(() => {
     getParameters()
       .then((data) => {
-        if (data) setStats(data);
+        if (data && data.health !== undefined) {
+          setStats(data);
+        }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setIsStatsLoading(false));
   }, []);
 
   // アプリ起動時にデータベースを初期化
@@ -476,7 +480,7 @@ function ResourceCounter() {
                 {label}
               </span>
               <span className="status-value" style={{ color }}>
-                {stats[key]}
+                {isStatsLoading ? "-" : stats[key]}
               </span>
             </div>
           ))}
