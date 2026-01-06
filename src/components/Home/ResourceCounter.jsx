@@ -15,9 +15,9 @@ import { generateEncouragingComment } from "../../services/gemini";
 function ResourceCounter() {
   const [stats, setStats] = useState({
     health: 100,
-    stress: 0,
-    energy: 50,
-    money: 1000,
+    happiness: 50,
+    mentalState: 50,
+    hunger: 0,
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,14 +28,18 @@ function ResourceCounter() {
   const [commentExpandedPostIds, setCommentExpandedPostIds] = useState(new Set());
   const [loadingCommentPostId, setLoadingCommentPostId] = useState(null);
   const [commentErrors, setCommentErrors] = useState({});
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
 
   // 初回ロード時にサーバーやローカルデータから取得
   useEffect(() => {
     getParameters()
       .then((data) => {
-        if (data) setStats(data);
+        if (data && data.health !== undefined) {
+          setStats(data);
+        }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setIsStatsLoading(false));
   }, []);
 
   // アプリ起動時にデータベースを初期化
@@ -199,10 +203,10 @@ function ResourceCounter() {
   };
 
   const statConfigs = [
-    { key: "health", label: "体力", color: "#4CAF50", initialValue: 100 },
-    { key: "stress", label: "ストレス", color: "#f44336", initialValue: 0 },
-    { key: "energy", label: "空腹度", color: "#FF9800", initialValue: 50 },
-    { key: "money", label: "お金", color: "#2196F3", initialValue: 1000 },
+    { key: "health", label: "健康", color: "#4CAF50", initialValue: 100 },
+    { key: "happiness", label: "幸福度", color: "#FF9800", initialValue: 50 },
+    { key: "mentalState", label: "精神状態", color: "#2196F3", initialValue: 50 },
+    { key: "hunger", label: "満腹度", color: "#f44336", initialValue: 0 },
   ];
 
   return (
@@ -476,7 +480,7 @@ function ResourceCounter() {
                 {label}
               </span>
               <span className="status-value" style={{ color }}>
-                {stats[key]}
+                {isStatsLoading ? "-" : stats[key]}
               </span>
             </div>
           ))}
@@ -687,6 +691,7 @@ function ResourceCounter() {
 
       {/* フローティング投稿ボタン */}
       <button
+        type="button"
         className="floating-button"
         onClick={() => setIsModalOpen(true)}
         title="エピソードを投稿"
