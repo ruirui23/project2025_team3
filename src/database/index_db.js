@@ -25,7 +25,8 @@ class IndexDB {
   }
 
   async _init(user_id) {
-    this.user = await this.db.users.get(user_id);
+    // user_idカラムで検索（プライマリキーのidではなく）
+    this.user = await this.db.users.where('user_id').equals(user_id).first();
     if (!this.user) {
       await this.db.users.add({
         user_id,
@@ -39,7 +40,8 @@ class IndexDB {
         rank,
         parameter,
       });
-      this.user = await this.db.users.get(user_id);
+      // 追加後に再取得
+      this.user = await this.db.users.where('user_id').equals(user_id).first();
     }
   }
 
