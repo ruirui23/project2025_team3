@@ -25,13 +25,13 @@ export async function analyzeEpisodeParameters(episode) {
 ${episode}
 
 以下の4つのパラメータについて、変化量を数値で答えてください：
-1. 体力（health）：体調が良くなったり運動したら+、疲れたり病気になったら-
-2. ストレス（stress）：嫌なことがあったりプレッシャーを感じたら+、リラックスしたり楽しいことがあったら-
-3. 空腹度（energy）：お腹が空いたら+、美味しい食事をしたら-
-4. お金（money）：収入や節約できたら+、出費があったら-
+1. 健康（health）：体調が良くなったり運動したら+、疲れたり病気になったら-
+2. 幸福度（happiness）：嬉しいことがあったり楽しい時間を過ごしたら+、悲しいことや辛いことがあったら-
+3. 精神状態（mentalState）：リラックスしたり心が安定したら+、ストレスや不安を感じたら-
+4. 満腹度（hunger）：美味しい食事をしたら+、お腹が空いたら-
 
 必ず以下のJSON形式で回答してください。他のテキストは含めないでください：
-{"health": 数値, "stress": 数値, "energy": 数値, "money": 数値}
+{"health": 数値, "happiness": 数値, "mentalState": 数値, "hunger": 数値}
 
 注意：
 - 各値は-100から+100の整数で指定してください
@@ -56,9 +56,9 @@ ${episode}
 
     return {
       health: clamp(parameters.health),
-      stress: clamp(parameters.stress),
-      energy: clamp(parameters.energy),
-      money: clamp(parameters.money),
+      happiness: clamp(parameters.happiness),
+      mentalState: clamp(parameters.mentalState),
+      hunger: clamp(parameters.hunger),
     };
   } catch (error) {
     console.error("Gemini API Error:", error);
@@ -82,10 +82,10 @@ export async function generateEncouragingComment(episode, parameters) {
 
     // パラメータ変化をテキスト化
     const paramTexts = [];
-    if (parameters.health !== 0) paramTexts.push(`体力${parameters.health > 0 ? '+' : ''}${parameters.health}`);
-    if (parameters.stress !== 0) paramTexts.push(`ストレス${parameters.stress > 0 ? '+' : ''}${parameters.stress}`);
-    if (parameters.energy !== 0) paramTexts.push(`空腹度${parameters.energy > 0 ? '+' : ''}${parameters.energy}`);
-    if (parameters.money !== 0) paramTexts.push(`お金${parameters.money > 0 ? '+' : ''}${parameters.money}`);
+    if (parameters.health !== 0) paramTexts.push(`健康${parameters.health > 0 ? '+' : ''}${parameters.health}`);
+    if (parameters.happiness !== 0) paramTexts.push(`幸福度${parameters.happiness > 0 ? '+' : ''}${parameters.happiness}`);
+    if (parameters.mentalState !== 0) paramTexts.push(`精神状態${parameters.mentalState > 0 ? '+' : ''}${parameters.mentalState}`);
+    if (parameters.hunger !== 0) paramTexts.push(`満腹度${parameters.hunger > 0 ? '+' : ''}${parameters.hunger}`);
     const paramString = paramTexts.length > 0 ? `\n\nパラメータ変化：${paramTexts.join('、')}` : '';
 
     const prompt = `あなたは温かく励ましてくれる友人です。

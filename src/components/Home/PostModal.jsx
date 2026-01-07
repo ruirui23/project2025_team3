@@ -5,9 +5,9 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters, editData }) {
   const [episode, setEpisode] = useState("");
   const [parameters, setParameters] = useState({
     health: "",
-    stress: "",
-    energy: "",
-    money: "",
+    happiness: "",
+    mentalState: "",
+    hunger: "",
   });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -17,13 +17,13 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters, editData }) {
       setEpisode(editData.episode || "");
       setParameters({
         health: editData.parameters?.health?.toString() || "",
-        stress: editData.parameters?.stress?.toString() || "",
-        energy: editData.parameters?.energy?.toString() || "",
-        money: editData.parameters?.money?.toString() || "",
+        happiness: editData.parameters?.happiness?.toString() || "",
+        mentalState: editData.parameters?.mentalState?.toString() || "",
+        hunger: editData.parameters?.hunger?.toString() || "",
       });
     } else {
       setEpisode("");
-      setParameters({ health: "", stress: "", energy: "", money: "" });
+      setParameters({ health: "", happiness: "", mentalState: "", hunger: "" });
     }
   }, [editData, isOpen]);
 
@@ -39,18 +39,18 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters, editData }) {
                 parameters.health === "" || parameters.health === "-"
                   ? lastParameters?.health || 0
                   : Number(parameters.health),
-              stress:
-                parameters.stress === "" || parameters.stress === "-"
-                  ? lastParameters?.stress || 0
-                  : Number(parameters.stress),
-              energy:
-                parameters.energy === "" || parameters.energy === "-"
-                  ? lastParameters?.energy || 0
-                  : Number(parameters.energy),
-              money:
-                parameters.money === "" || parameters.money === "-"
-                  ? lastParameters?.money || 0
-                  : Number(parameters.money),
+              happiness:
+                parameters.happiness === "" || parameters.happiness === "-"
+                  ? lastParameters?.happiness || 0
+                  : Number(parameters.happiness),
+              mentalState:
+                parameters.mentalState === "" || parameters.mentalState === "-"
+                  ? lastParameters?.mentalState || 0
+                  : Number(parameters.mentalState),
+              hunger:
+                parameters.hunger === "" || parameters.hunger === "-"
+                  ? lastParameters?.hunger || 0
+                  : Number(parameters.hunger),
             },
           }
         : {
@@ -71,24 +71,24 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters, editData }) {
                 parameters.health === "" || parameters.health === "-"
                   ? lastParameters?.health || 0
                   : Number(parameters.health),
-              stress:
-                parameters.stress === "" || parameters.stress === "-"
-                  ? lastParameters?.stress || 0
-                  : Number(parameters.stress),
-              energy:
-                parameters.energy === "" || parameters.energy === "-"
-                  ? lastParameters?.energy || 0
-                  : Number(parameters.energy),
-              money:
-                parameters.money === "" || parameters.money === "-"
-                  ? lastParameters?.money || 0
-                  : Number(parameters.money),
+              happiness:
+                parameters.happiness === "" || parameters.happiness === "-"
+                  ? lastParameters?.happiness || 0
+                  : Number(parameters.happiness),
+              mentalState:
+                parameters.mentalState === "" || parameters.mentalState === "-"
+                  ? lastParameters?.mentalState || 0
+                  : Number(parameters.mentalState),
+              hunger:
+                parameters.hunger === "" || parameters.hunger === "-"
+                  ? lastParameters?.hunger || 0
+                  : Number(parameters.hunger),
             },
           };
       onSubmit(data);
       // フォームをリセット
       setEpisode("");
-      setParameters({ health: "", stress: "", energy: "", money: "" });
+      setParameters({ health: "", happiness: "", mentalState: "", hunger: "" });
       onClose();
     }
   };
@@ -111,9 +111,9 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters, editData }) {
       const analyzedParams = await analyzeEpisodeParameters(episode);
       setParameters({
         health: analyzedParams.health.toString(),
-        stress: analyzedParams.stress.toString(),
-        energy: analyzedParams.energy.toString(),
-        money: analyzedParams.money.toString(),
+        happiness: analyzedParams.happiness.toString(),
+        mentalState: analyzedParams.mentalState.toString(),
+        hunger: analyzedParams.hunger.toString(),
       });
     } catch (error) {
       alert(error.message || "エラーが発生しました。もう一度お試しください。");
@@ -125,10 +125,10 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters, editData }) {
   if (!isOpen) return null;
 
   const paramConfigs = [
-    { key: "health", label: "体力", color: "#4CAF50" },
-    { key: "stress", label: "ストレス", color: "#f44336" },
-    { key: "energy", label: "空腹度", color: "#FF9800" },
-    { key: "money", label: "お金", color: "#2196F3" },
+    { key: "health", label: "健康", color: "#4CAF50" },
+    { key: "happiness", label: "幸福度", color: "#FF9800" },
+    { key: "mentalState", label: "精神状態", color: "#2196F3" },
+    { key: "hunger", label: "満腹度", color: "#f44336" },
   ];
 
   return (

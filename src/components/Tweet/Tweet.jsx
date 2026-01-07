@@ -59,18 +59,18 @@ export default function Tweet() {
         datetime: dateTime,
         timestamp: new Date(record.timestamp).getTime(), // ソート用
         health: record.parameters?.health || 0,
-        stress: record.parameters?.stress || 0,
-        energy: record.parameters?.energy || 0,
-        money: record.parameters?.money || 0,
+        happiness: record.parameters?.happiness || 0,
+        mentalState: record.parameters?.mentalState || 0,
+        hunger: record.parameters?.hunger || 0,
       };
     });
   };
 
   const chartConfigs = [
-    { key: "health", label: "体力", color: "#4CAF50" },
-    { key: "stress", label: "ストレス", color: "#f44336" },
-    { key: "energy", label: "空腹度", color: "#FF9800" },
-    { key: "money", label: "お金", color: "#2196F3" },
+    { key: "health", label: "健康", color: "#4CAF50" },
+    { key: "happiness", label: "幸福度", color: "#FF9800" },
+    { key: "mentalState", label: "精神状態", color: "#2196F3" },
+    { key: "hunger", label: "満腹度", color: "#f44336" },
   ];
 
   return (
@@ -113,16 +113,16 @@ export default function Tweet() {
           border-left-color: #4CAF50;
         }
 
-        .chart-card.stress {
-          border-left-color: #f44336;
-        }
-
-        .chart-card.energy {
+        .chart-card.happiness {
           border-left-color: #FF9800;
         }
 
-        .chart-card.money {
+        .chart-card.mentalState {
           border-left-color: #2196F3;
+        }
+
+        .chart-card.hunger {
+          border-left-color: #f44336;
         }
 
         .no-data {
