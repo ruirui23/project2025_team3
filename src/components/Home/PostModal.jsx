@@ -57,6 +57,7 @@ function PostModal({ isOpen, onClose, onSubmit, lastParameters, editData }) {
             id: Date.now().toString(),
             timestamp: new Date().toISOString(),
             date: new Date().toLocaleDateString("ja-JP", {
+              year: "numeric",
               month: "2-digit",
               day: "2-digit",
             }),
