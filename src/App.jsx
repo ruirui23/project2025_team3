@@ -5,10 +5,14 @@ import ResourceCounter from "./components/Home/ResourceCounter";
 import BottomNavigation from "./components/common/BottomNavigation";
 import Tweet from "./components/Tweet/Tweet";
 import AuthModals from "./components/auth/AuthModal";
+import Game1 from "./components/Game1/Game1";
 
-function Game1() { return <h2>Game1 Page</h2>; }
-function Game2() { return <h2>Game2 Page</h2>; }
-function Profile() { return <h2>Profile Page</h2>; }
+function Game2() {
+  return <h2>Game2 Page</h2>;
+}
+function Profile() {
+  return <h2>Profile Page</h2>;
+}
 
 export default function App() {
   const [auth, setAuth] = useState({ login: false, signup: false });
