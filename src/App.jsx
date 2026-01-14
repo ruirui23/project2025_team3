@@ -7,9 +7,6 @@ import Tweet from "./components/Tweet/Tweet";
 import AuthModals from "./components/auth/AuthModal";
 import Game1 from "./components/Game1/Game1";
 
-function Game2() {
-  return <h2>Game2 Page</h2>;
-}
 function Profile() {
   return <h2>Profile Page</h2>;
 }
@@ -40,7 +37,6 @@ export default function App() {
             <Route path="/" element={<ResourceCounter />} />
             <Route path="/tweet" element={<Tweet />} />
             <Route path="/game1" element={<Game1 />} />
-            <Route path="/game2" element={<Game2 />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </div>
