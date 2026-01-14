@@ -2,11 +2,10 @@ import React, { useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const ITEMS = [
-  { to: "/", label: "Home" },
-  { to: "/tweet", label: "Tweet" },
-  { to: "/game1", label: "Game1" },
-  { to: "/game2", label: "Game2" },
-  { to: "/profile", label: "Profile" },
+  { to: "/", label: "ホーム" },
+  { to: "/tweet", label: "グラフ" },
+  { to: "/game1", label: "履歴" },
+  { to: "/profile", label: "プロフィール" },
 ];
 
 export default function BottomNavigation() {
