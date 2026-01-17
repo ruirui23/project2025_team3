@@ -70,7 +70,7 @@ class IndexDB {
       }
       );
     } else {
-      await this.db.user.add({
+      await this.db.users.add({
         user_id: userId,
         user_name: userName,
         access_key: token,
