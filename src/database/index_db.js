@@ -15,7 +15,7 @@ class IndexDB {
      */
     this.db = new Dexie(db_name);
     this.db.version(1).stores({
-      users: "++id, &user_id, user_name, user_pass",
+      users: "++id, &user_id, user_name, user_pass, access_key",
       status: "++id, level, rank, parameter",
       diaries: "++id, &diary_id, entries",
       posts: "++id, timestamp, date",
@@ -31,6 +31,7 @@ class IndexDB {
       await this.db.users.add({
         user_id,
         user_name: user_id,
+        access_key: null,
       });
       let level = JSON.stringify({ level: 0, exp: 0 });
       let rank = JSON.stringify({ rank: 0, rp: 0 });
@@ -43,6 +44,54 @@ class IndexDB {
       // 追加後に再取得
       this.user = await this.db.users.where('user_id').equals(user_id).first();
     }
+  }
+
+  async saveAccessKey(user_id, key) {
+    /*
+     * 変更：アクセスキー保存・変更
+     *
+     * 引数:
+     * user_id accesskey
+     */
+    await this.db.users
+      .where("user_id")
+      .equals(user_id)
+      .modify({ access_key: key });
+  }
+
+  async syncUserFromServer(userId, userName, token) {
+    //既存ユーザの検索
+    const exsitngUser = await this.db.user.where('user_id').equals(userId).first();
+
+    if (exsitngUser) {
+      await this.db.users.upadate(exsitngUser.id, {
+        user_name: userName,
+        access_key: token
+      }
+      );
+    } else {
+      await this.db.users.add({
+        user_id: userId,
+        user_name: userName,
+        access_key: token,
+        user_pass: null
+      });
+
+      await this._initStatusData(userId);
+    }
+
+    this.user = await this.db.users.where('user_id').equals(userId).first();
+  }
+
+  async _initStatusData(user_id) {
+    let level = JSON.stringify({ level: 0, exp: 0});
+    let rank = JSON.stringify({ rank: 0, rp: 0});
+    let parameter = JSON.stringify({});
+    await this.db.status.add({
+      level,
+      rank,
+      parameter,
+    });
   }
 
   async changeUser(user_id) {
@@ -228,7 +277,7 @@ export function initializeDatabase() {
   return new Promise((resolve, reject) => {
     const db = new Dexie("GameDatabase");
     db.version(1).stores({
-      users: "++id, &user_id, user_name, user_pass",
+      users: "++id, &user_id, user_name, user_pass, access_key",
       status: "++id, level, rank, parameter",
       diaries: "++id, &diary_id, entries",
       posts: "id",
@@ -251,7 +300,7 @@ export function saveDataToDB(data) {
   return new Promise((resolve, reject) => {
     const db = new Dexie("GameDatabase");
     db.version(1).stores({
-      users: "++id, &user_id, user_name, user_pass",
+      users: "++id, &user_id, user_name, user_pass, access_key",
       status: "++id, level, rank, parameter",
       diaries: "++id, &diary_id, entries",
       posts: "id",
@@ -277,7 +326,7 @@ export function getAllDataFromDB() {
   return new Promise((resolve, reject) => {
     const db = new Dexie("GameDatabase");
     db.version(1).stores({
-      users: "++id, &user_id, user_name, user_pass",
+      users: "++id, &user_id, user_name, user_pass, access_key",
       status: "++id, level, rank, parameter",
       diaries: "++id, &diary_id, entries",
       posts: "id",
@@ -303,7 +352,7 @@ export function updatePostInDB(id, data) {
   return new Promise((resolve, reject) => {
     const db = new Dexie("GameDatabase");
     db.version(1).stores({
-      users: "++id, &user_id, user_name, user_pass",
+      users: "++id, &user_id, user_name, user_pass, access_key",
       status: "++id, level, rank, parameter",
       diaries: "++id, &diary_id, entries",
       posts: "id",
@@ -338,7 +387,7 @@ export function deletePostFromDB(id) {
   return new Promise((resolve, reject) => {
     const db = new Dexie("GameDatabase");
     db.version(1).stores({
-      users: "++id, &user_id, user_name, user_pass",
+      users: "++id, &user_id, user_name, user_pass, access_key",
       status: "++id, level, rank, parameter",
       diaries: "++id, &diary_id, entries",
       posts: "id",
@@ -374,7 +423,7 @@ export function updatePostCommentInDB(id, aiComment) {
   return new Promise((resolve, reject) => {
     const db = new Dexie("GameDatabase");
     db.version(1).stores({
-      users: "++id, &user_id, user_name, user_pass",
+      users: "++id, &user_id, user_name, user_pass, access_key",
       status: "++id, level, rank, parameter",
       diaries: "++id, &diary_id, entries",
       posts: "id",

@@ -30,6 +30,12 @@ export async function modifyData(newParameters) {
     return newParameters;
 }
 
+export async function saveAccessKey(Key) {
+    const database = await getDatabase();
+    await database.saveAccessKey(TEST_USER, key);
+    return key;
+}
+
 // 以下の関数は使っていなければ削除可能
 export async function getData(key) {
     const database = await getDatabase();
