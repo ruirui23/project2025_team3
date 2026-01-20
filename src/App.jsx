@@ -31,15 +31,18 @@ export default function App() {
                 <LoginModal
                     open={loginOpen}
                     onClose={() => setLoginOpen(false)}
-                    onSubmit={(data) => {
-                    console.log("login:", data);
-                    setLoginOpen(false);
+                    onSubmit={async (email, pass) =>  {
+                        console.log("login:", email, pass);
+                        setLoginOpen(false);
                     }}
                 />
                 <SignupModal
                     open={signupOpen}
                     onClose={() => setSignupOpen(false)}
-                    onSubmit={(data) => console.log("signup", data)}
+                    onSubmit={async (email, pass) => {
+                        console.log("signup:", email, pass);
+                        setSignupOpen(false);
+                    }}
                 />
 
                 <Routes>

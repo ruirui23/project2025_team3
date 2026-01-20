@@ -36,6 +36,13 @@ export function AppProvider({ children }) {
         return {health: 100, happiness: 50, mentalState: 25, hunger: 10};
     };
 
+    // (推測) 認証APIを呼んで userId を返す想定。今はモック。
+    async function authenticate(email, pass) {
+      // 例: const { userId } = await api.login(email, pass)
+      if (!email || !pass) throw new Error("メール/パスワードが必要です");
+      return { userId: "mock-user-1" };
+    }
+
     // ユーザー更新時の処理
     useEffect(() => {
         if (!userId) {
