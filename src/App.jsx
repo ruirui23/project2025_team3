@@ -1,56 +1,60 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState } from "react";
 import "./App.css";
-import ResourceCounter from "./components/Home/ResourceCounter";
-import BottomNavigation from "./components/common/BottomNavigation";
-import Tweet from "./components/Tweet/Tweet";
-import AuthModals from "./components/auth/AuthModal";
-import Game1 from "./components/Game1/Game1";
 
-function Profile() {
-  return <h2>Profile Page</h2>;
-}
+import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import { AppProvider } from "./components/features/AppProvider";
+import LoginModal from "./components/auth/LoginModal";
+import SignupModal from "./components/auth/SignupModal";
+
+import Header from "./components/layout/Header";
+import BottomNavigation from "./components/layout/BottomNavigation";
+
+import Home from "./pages/HomePage";
+import Analytics from "./pages/AnalyticsPage";
+// import History from "./pages/HistoryPage";
+// import Profile from "./pages/ProfilePage";
+// import Game from "./pages/GamePage";
+// import Settings from "./pages/Settings";
 
 export default function App() {
-  const [auth, setAuth] = useState({ login: false, signup: false });
+    const [loginOpen, setLoginOpen] = useState(false);
+    const [signupOpen, setSignupOpen] = useState(false);
+    return (
+        <BrowserRouter>
+            <AppProvider>
+                <Header
+                    onLoginClick={() => setLoginOpen(true)}
+                    onSignupClick={() => setSignupOpen(true)}
+                />
 
-  return (
-    <BrowserRouter>
-      {/* 固定ヘッダー */}
-      <div className="app-header">
-        <div className="app-header-left-spacer" />
-        <div className="app-header-title">自己管理</div>
+                <LoginModal
+                    open={loginOpen}
+                    onClose={() => setLoginOpen(false)}
+                    onSubmit={(data) => {
+                    console.log("login:", data);
+                    setLoginOpen(false);
+                    }}
+                />
+                <SignupModal
+                    open={signupOpen}
+                    onClose={() => setSignupOpen(false)}
+                    onSubmit={(data) => console.log("signup", data)}
+                />
 
-        <div className="auth-buttons">
-          <button className="auth-btn login" onClick={() => setAuth({ login: true, signup: false })}>
-            ログイン
-          </button>
-          <button className="auth-btn signup" onClick={() => setAuth({ login: false, signup: true })}>
-            サインアップ
-          </button>
-        </div>
-      </div>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    {/*
+                    <Route path="/history" element={<History />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/game" element={<Game />} />
+                    <Route path="/settings" element={<Settings />} />
+                    */}
+                </Routes>
 
-      <div className="app-main">
-        <div className="app-main-inner">
-          <Routes>
-            <Route path="/" element={<ResourceCounter />} />
-            <Route path="/tweet" element={<Tweet />} />
-            <Route path="/game1" element={<Game1 />} />
-            <Route path="/profile" element={<Profile />} />
-          </Routes>
-        </div>
-      </div>
-
-      <BottomNavigation />
-
-      <AuthModals
-        loginOpen={auth.login}
-        signupOpen={auth.signup}
-        openLogin={() => setAuth({ login: true, signup: false })}
-        openSignup={() => setAuth({ login: false, signup: true })}
-        closeAll={() => setAuth({ login: false, signup: false })}
-      />
-    </BrowserRouter>
-  );
+                <BottomNavigation />
+            </AppProvider>
+        </BrowserRouter>
+    );
 }

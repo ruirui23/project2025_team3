@@ -1,0 +1,84 @@
+/* ===== Bottom Nav 本体 ===== */
+:root {
+  --bottom-nav-height: 56px;
+}
+
+nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 56px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  background: #ffffff;
+  border-top: 1px solid #eee;
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.04);
+
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (min-width: 768px) {
+  nav {
+    height: 64px;
+  }
+}
+
+/* ===== Nav Item（NavLink = a） ===== */
+nav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 56px;
+  padding: 6px 8px;
+  border-radius: 12px;
+
+  background: transparent;
+  border: none;
+
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+@media (min-width: 768px) {
+  nav a {
+    font-size: 13px;
+  }
+}
+
+/* hover */
+nav a:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* 押下感 */
+nav a:active {
+  transform: translateY(1px);
+}
+
+/* ===== Active ===== */
+nav a[aria-current="page"] {
+  color: #1976d2;
+  font-weight: 700;
+  background: rgba(25, 118, 210, 0.1);
+}
+
+/* ===== Keyboard focus ===== */
+nav a:focus-visible {
+  outline: 3px solid rgba(25, 118, 210, 0.3);
+  outline-offset: 2px;
+}

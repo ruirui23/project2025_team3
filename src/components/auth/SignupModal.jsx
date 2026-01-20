@@ -1,45 +1,18 @@
-import { useMemo, useState } from "react";
-import Modal from "./Modal";
+import "./SignupModal.css";
 
-export default function SignupModal({
-  open,
-  onClose,
-  onMoveLogin,
-  submitting,
-  setSubmitting,
-  signupApi,
-}) {
-  const [userName, setUserName] = useState("");
-  const [pw1, setPw1] = useState("");
-  const [pw2, setPw2] = useState("");
-  const [agree, setAgree] = useState(false);
-  const [show1, setShow1] = useState(false);
-  const [show2, setShow2] = useState(false);
+import { useRef, useState } from "react";
+import Modal from "../common/Modal";
 
-  const error = useMemo(() => {
-    if (!userName.trim()) return "ユーザー名を入力してください";
-    if (!pw1) return "パスワードを入力してください";
-    if (pw1.length < 8) return "パスワードは8文字以上にしてください";
-    if (pw1 !== pw2) return "パスワードが一致しません";
-    if (!agree) return "利用規約に同意してください";
-    return "";
-  }, [userName, pw1, pw2, agree]);
+export default function SignupModal({ open, onClose, onSubmit }) {
+  const emailRef = useRef(null);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    if (error || submitting) return;
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+  const [confirm, setConfirm] = useState("");
 
-    setSubmitting(true);
-    try {
-      const res = await signupApi({ userName, password: pw1 });
-      if (res?.ok) {
-        onClose?.();
-        onMoveLogin?.(); // 作成後にログインへ誘導（任意）
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  // ここ重要: JSXより前に定義
+  const mismatch = pass !== "" && confirm !== "" && pass !== confirm;
+  const canSubmit = email.trim() !== "" && pass !== "" && confirm !== "" && !mismatch;
 
   return (
     <Modal
@@ -47,70 +20,61 @@ export default function SignupModal({
       onClose={onClose}
       title="サインアップ"
       description="新しいアカウントを作成します。"
+      initialFocusRef={emailRef}
+      maxWidth={520}
     >
-      <form onSubmit={onSubmit}>
-        <div className="form-grid">
-          <div className="field">
-            <div className="label">ユーザー名</div>
-            <input
-              className="input"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              autoComplete="username"
-              placeholder="例: sorairo"
-            />
-          </div>
+      <form
+        className="form-grid"
+        onSubmit={(e) => {
+          e.preventDefault();
 
-          <div className="field">
-            <div className="label">パスワード</div>
-            <div className="input-row">
-              <input
-                className="input"
-                type={show1 ? "text" : "password"}
-                value={pw1}
-                onChange={(e) => setPw1(e.target.value)}
-                autoComplete="new-password"
-                placeholder="8文字以上"
-              />
-              <button type="button" className="toggle-btn" onClick={() => setShow1((v) => !v)}>
-                {show1 ? "隠す" : "表示"}
-              </button>
-            </div>
-          </div>
+          if (!canSubmit) return;
 
-          <div className="field">
-            <div className="label">パスワード（確認）</div>
-            <div className="input-row">
-              <input
-                className="input"
-                type={show2 ? "text" : "password"}
-                value={pw2}
-                onChange={(e) => setPw2(e.target.value)}
-                autoComplete="new-password"
-                placeholder="もう一度入力"
-              />
-              <button type="button" className="toggle-btn" onClick={() => setShow2((v) => !v)}>
-                {show2 ? "隠す" : "表示"}
-              </button>
-            </div>
-          </div>
+          // confirm は送らない運用の方が一般的
+          onSubmit?.({ email, pass });
+        }}
+      >
+        <label className="field">
+          <span className="label">メール</span>
+          <input
+            ref={emailRef}
+            className="input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+          />
+        </label>
 
-          <label className="checkbox">
-            <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-            利用規約に同意します
-          </label>
+        <label className="field">
+          <span className="label">パスワード</span>
+          <input
+            className="input"
+            type="password"
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            autoComplete="new-password"
+          />
+        </label>
 
-          {error ? <div className="error">{error}</div> : null}
+        <label className="field">
+          <span className="label">パスワード（確認）</span>
+          <input
+            className={`input ${mismatch ? "input-error" : ""}`}
+            type="password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            autoComplete="new-password"
+          />
+          {mismatch && <span className="error">パスワードが一致しません</span>}
+        </label>
 
-          <div className="actions">
-            <button className="primary-btn" type="submit" disabled={!!error || submitting}>
-              {submitting ? "作成中..." : "アカウント作成"}
-            </button>
-
-            <button className="secondary-btn" type="button" onClick={onMoveLogin}>
-              すでにアカウントがある（ログインへ）
-            </button>
-          </div>
+        <div className="actions">
+          <button className="primary-btn" type="submit" disabled={!canSubmit}>
+            登録
+          </button>
+          <button className="secondary-btn" type="button" onClick={onClose}>
+            キャンセル
+          </button>
         </div>
       </form>
     </Modal>

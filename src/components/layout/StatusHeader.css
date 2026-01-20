@@ -1,0 +1,100 @@
+:root {
+  --status-header-height: 72px; /* PC */
+}
+
+/* 固定ステータスヘッダー */
+.status-header {
+  position: fixed;
+  top: var(--app-header-height);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 998;
+}
+
+/* PC: 4列 / SP: 2列（2×2） */
+.status-grid {
+  display: grid;
+  gap: 10px;
+
+  max-width: 1200px;
+  margin: 0 auto;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.status-item {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 2px solid;
+  background: #fff;
+}
+
+.status-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.status-value {
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+/* 色は data-stat で付与 */
+.status-item[data-stat="health"] { border-color: #4caf50; }
+.status-item[data-stat="health"] .status-label,
+.status-item[data-stat="health"] .status-value { color: #4caf50; }
+
+.status-item[data-stat="happiness"] { border-color: #ff9800; }
+.status-item[data-stat="happiness"] .status-label,
+.status-item[data-stat="happiness"] .status-value { color: #ff9800; }
+
+.status-item[data-stat="mentalState"] { border-color: #2196f3; }
+.status-item[data-stat="mentalState"] .status-label,
+.status-item[data-stat="mentalState"] .status-value { color: #2196f3; }
+
+.status-item[data-stat="hunger"] { border-color: #f44336; }
+.status-item[data-stat="hunger"] .status-label,
+.status-item[data-stat="hunger"] .status-value { color: #f44336; }
+
+/* Responsive（スマホ2×2） */
+@media (max-width: 768px) {
+  :root {
+    --status-header-height: 116px; /* 2段分を確保 */
+  }
+
+  .status-header {
+    padding: 10px 12px;
+  }
+
+  .status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .status-item {
+    padding: 6px 10px;
+  }
+
+  .status-label {
+    font-size: 0.8rem;
+  }
+
+  .status-value {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .status-label { font-size: 0.75rem; }
+  .status-value { font-size: 1rem; }
+}
