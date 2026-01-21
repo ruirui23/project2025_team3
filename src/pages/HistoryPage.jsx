@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 // } from "../../database/index_db";
 // import BottomNavigation from "../common/BottomNavigation";
 // import { modifyData } from "../../services/data";
-import { generateEncouragingComment } from "../services/gemini";
+import { generateEncouragingComment } from "../components/services/gemini";
 
 function Game1() {
   const [episodes, setEpisodes] = useState([]);
