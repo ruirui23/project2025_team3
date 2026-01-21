@@ -1,0 +1,200 @@
+/* src/components/pages/AnalyticsPage.css */
+/* 既存の Page.css / card の見た目を壊さず、Game1の中身だけ移植する前提 */
+
+.history-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Timeline header inside card */
+.timeline-header {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.timeline-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #333;
+  margin: 0;
+}
+
+.timeline-subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.4rem 0 0;
+}
+
+.resource-container {
+  margin-top: 1rem;
+}
+
+.section-title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.timeline-item {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.timeline-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.timeline-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline-datetime {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 0.4rem;
+}
+
+.timeline-text {
+  cursor: pointer;
+  padding: 0.5rem;
+  margin: -0.5rem;
+  border-radius: 8px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.timeline-text:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.timeline-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.action-btn {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: #f44336;
+  color: #fff;
+}
+.delete-btn:hover {
+  background: #d32f2f;
+}
+
+.timeline-params {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-end;
+  min-width: 72px;
+}
+
+.param-value {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.ai-comment-section {
+  margin-top: 0.8rem;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 0.8rem;
+}
+
+.ai-comment-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  background: none;
+  color: #666;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.35rem 0.4rem;
+  border-radius: 6px;
+}
+
+.ai-comment-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ai-comment-btn:not(:disabled):hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.ai-comment-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.ai-comment-content {
+  margin-top: 0.7rem;
+  padding: 0.9rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 10px;
+  border-left: 3px solid #00bcd4;
+}
+
+.ai-comment-label {
+  font-size: 0.75rem;
+  color: #777;
+  margin-bottom: 0.4rem;
+  font-weight: 800;
+}
+
+.ai-comment-text {
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+.error-message {
+  margin-top: 0.7rem;
+  padding: 0.8rem;
+  background: #ffebee;
+  border-radius: 10px;
+  border-left: 3px solid #f44336;
+  font-size: 0.85rem;
+  color: #c62828;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+  opacity: 0.6;
+}
+
+/* 画面が狭い時 */
+@media (max-width: 768px) {
+  .timeline-item-header {
+    flex-direction: column;
+  }
+  .timeline-params {
+    align-items: flex-start;
+  }
+}

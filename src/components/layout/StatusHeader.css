@@ -1,11 +1,11 @@
 :root {
-  --status-header-height: 72px; /* PC */
+  --status-header-height: 80px; /* PC */
 }
 
 /* 固定ステータスヘッダー */
 .status-header {
   position: fixed;
-  top: var(--app-header-height);
+  top: var(--status-header-height);
   left: 0;
   right: 0;
   background: #ffffff;

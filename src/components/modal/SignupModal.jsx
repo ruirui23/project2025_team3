@@ -4,15 +4,21 @@ import { useRef, useState } from "react";
 import Modal from "../common/Modal";
 
 export default function SignupModal({ open, onClose, onSubmit }) {
-  const emailRef = useRef(null);
+  const userNameRef = useRef(null);
 
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [confirm, setConfirm] = useState("");
 
-  // ここ重要: JSXより前に定義
+  // validation
   const mismatch = pass !== "" && confirm !== "" && pass !== confirm;
-  const canSubmit = email.trim() !== "" && pass !== "" && confirm !== "" && !mismatch;
+  const canSubmit =
+    userName.trim() !== "" &&
+    email.trim() !== "" &&
+    pass !== "" &&
+    confirm !== "" &&
+    !mismatch;
 
   return (
     <Modal
@@ -20,24 +26,37 @@ export default function SignupModal({ open, onClose, onSubmit }) {
       onClose={onClose}
       title="サインアップ"
       description="新しいアカウントを作成します。"
-      initialFocusRef={emailRef}
+      initialFocusRef={userNameRef}
       maxWidth={520}
     >
       <form
         className="form-grid"
         onSubmit={(e) => {
           e.preventDefault();
-
           if (!canSubmit) return;
 
-          // confirm は送らない運用の方が一般的
-          onSubmit?.({ email, pass });
+          // confirm は送らない
+          onSubmit?.({
+            user_name: userName.trim(),
+            email: email.trim(),
+            pass,
+          });
         }}
       >
         <label className="field">
+          <span className="label">ユーザー名</span>
+          <input
+            ref={userNameRef}
+            className="input"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            autoComplete="username"
+          />
+        </label>
+
+        <label className="field">
           <span className="label">メール</span>
           <input
-            ref={emailRef}
             className="input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}

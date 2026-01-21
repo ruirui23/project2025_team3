@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import "./StatusHeader.css";
-import { STAT_CONFIGS, useStatus } from "../features/AppProvider.jsx";
+import { useStatus } from "../features/AppProvider.jsx";
 
 export default function StatusHeader() {
-    const { status, isLoading } = useStatus();
+  const { status, isLoading } = useStatus();
+  const STAT_CONFIGS = [
+    { key: "health", label: "健康" },
+    { key: "happiness", label: "幸福度" },
+    { key: "mentalState", label: "精神状態" },
+    { key: "hunger", label: "満腹度" },
+  ];
 
   return (
     <div className="status-header" role="region" aria-label="ステータス">
