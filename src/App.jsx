@@ -11,7 +11,7 @@ import BottomNavigation from "./components/layout/BottomNavigation";
 import Home from "./pages/HomePage";
 import Analytics from "./pages/AnalyticsPage";
 import History from "./pages/HistoryPage";
-// import Profile from "./pages/ProfilePage";
+import Profile from "./pages/ProfilePage";
 // import Game from "./pages/GamePage";
 // import Settings from "./pages/Settings";
 
@@ -28,8 +28,8 @@ export default function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/analytics" element={<Analytics />} />
                     <Route path="/history" element={<History />} />
-                    {/*
                     <Route path="/profile" element={<Profile />} />
+                    {/*
                     <Route path="/game" element={<Game />} />
                     <Route path="/settings" element={<Settings />} />
                     */}

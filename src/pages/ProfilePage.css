@@ -1,0 +1,147 @@
+/* メイン：固定ヘッダー2段分だけ上に余白を確保 */
+main.profile-page {
+    margin-top: calc(var(--app-header-height) + var(--status-header-height) + 16px);
+}
+
+/* 置き場用カード */
+.card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+    margin: 0 0 8px 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #222;
+}
+
+.card-desc {
+    margin: 0;
+    color: #666;
+    line-height: 1.6;
+}
+
+.form-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.82rem;
+  color: #444;
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  outline: none;
+  font-size: 0.95rem;
+  color: #222;
+}
+
+.input:focus {
+  border-color: rgba(0, 188, 212, 0.65);
+  box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.14);
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.toggle-btn {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 10px 10px;
+  cursor: pointer;
+  font-weight: 800;
+  color: #333;
+  white-space: nowrap;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: #444;
+  user-select: none;
+}
+
+.error {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(244, 67, 54, 0.08);
+  color: #c62828;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 0;
+  background: #00bcd4;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.primary-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  color: #333;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.link-btn {
+  border: 0;
+  background: transparent;
+  color: #00bcd4;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 6px 0;
+}
