@@ -19,7 +19,7 @@ export default function App() {
       {/* 固定ヘッダー */}
       <div className="app-header">
         <div className="app-header-left-spacer" />
-        <div className="app-header-title">自己管理</div>
+        <div className="app-header-title">ステログ</div>
 
         <div className="auth-buttons">
           <button className="auth-btn login" onClick={() => setAuth({ login: true, signup: false })}>
