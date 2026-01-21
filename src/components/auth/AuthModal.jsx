@@ -47,6 +47,51 @@ async function signupApiRequest({ userName, password }) {
   return await res.json();
 }
 
+  // 仮ログインAPI
+  const loginApi = async ({ email, pass }) => {
+    // デバッグ用
+    console.log("[mock] loginApi:", email, pass);
+
+    // 疑似遅延（UX確認用）
+    await new Promise((r) => setTimeout(r, 500));
+
+    if (!email || !pass) {
+      throw new Error("メールとパスワードを入力してください");
+    }
+
+    // 仮成功
+    return {
+      ok: true,
+      user: {
+        id: 1,
+        email,
+        user_name: email.split("@")[0],
+      },
+      access_token: "mock-token",
+    };
+  };
+
+  // 仮サインアップAPI
+  const signupApi = async ({ email, user_name, pass }) => {
+    console.log("[mock] signupApi:", email, user_name, pass);
+
+    await new Promise((r) => setTimeout(r, 500));
+
+    if (!user_name || !pass) {
+      throw new Error("ユーザー名とパスワードは必須です");
+    }
+
+    return {
+      ok: true,
+      user: {
+        id: Date.now(),
+        email,
+        user_name,
+      },
+      access_token: "mock-token",
+    };
+  };
+
 const handleSignup = async ({ userName, password }) => {
     try {
       const data = await signupApiRequest({ userName, password });
