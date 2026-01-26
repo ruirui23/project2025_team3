@@ -530,7 +530,7 @@ function ResourceCounter() {
 
         .react-calendar {
           width: 100%;
-          max-width: 500px;
+          max-width: 700px;
           background: white;
           border: none;
           border-radius: 12px;
@@ -550,11 +550,16 @@ function ResourceCounter() {
           margin-bottom: 1.5rem;
         }
 
-        .react-calendar button {
+        .react-calendar__navigation button {
           margin: 0.5rem;
           font-size: 0.95rem;
           border-radius: 8px;
           padding: 0.6rem 0.8rem;
+        }
+
+        .react-calendar__month-view__days__day {
+          margin: 0;
+          padding: 0.8rem 0;
         }
 
         .react-calendar__navigation__label {
@@ -632,10 +637,15 @@ function ResourceCounter() {
             max-width: 100%;
           }
 
-          .react-calendar button {
+          .react-calendar__navigation button {
             margin: 0.3rem;
             font-size: 0.85rem;
             padding: 0.5rem 0.6rem;
+          }
+
+          .react-calendar__month-view__days__day {
+            margin: 0;
+            padding: 0.6rem 0;
           }
 
           .react-calendar__tile {
@@ -921,6 +931,7 @@ function ResourceCounter() {
               onChange={setSelectedDate}
               value={selectedDate}
               locale="ja-JP"
+              calendarType="gregory"
             />
           </div>
         </div>
